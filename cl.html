@@ -1,456 +1,657 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>AI Commerce Demo — HP Store Digital Experience</title>
+  <meta name="description" content="Interactive demo showcasing AI-powered ecommerce conversations" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #1a1a2e;
+      --surface: #202035;
+      --user-bubble: #303050;
+      --ai-text: #e8e8f0;
+      --dim: #9999bb;
+      --accent: #8ab4f8;
+      --white: #ffffff;
+      --border: #333355;
+    }
+    body {
+      font-family: 'Google Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0a0a1a;
+      color: var(--ai-text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      -webkit-font-smoothing: antialiased;
+    }
 
-// --- CONFIG ---
-const TYPING_SPEED = 12; // ms per character for AI response
-const THINKING_DURATION = 2500;
-const USER_MSG_DELAY = 800;
+    /* --- CONTROLS --- */
+    .controls {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .controls button {
+      padding: 8px 18px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--dim);
+      cursor: pointer;
+      font-size: 13px;
+      font-family: inherit;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    .controls button:hover:not(:disabled) { background: #2a2a4a; }
+    .controls button.primary { background: var(--accent); color: #000; font-weight: 600; }
+    .controls button.primary:hover { background: #9ec4ff; }
+    .controls button:disabled { opacity: 0.4; cursor: default; }
+    .controls .counter { font-size: 12px; color: var(--dim); min-width: 40px; text-align: center; }
 
-// --- GEMINI THEME ---
-const theme = {
-  bg: "#1a1a2e", // dark bg
-  surface: "#202035",
-  userBubble: "#303050",
-  aiText: "#e8e8f0",
-  dimText: "#9999bb",
-  accent: "#8ab4f8",
-  white: "#ffffff",
-  borderColor: "#333355",
-};
+    /* --- PHONE FRAME --- */
+    .phone {
+      width: 390px;
+      height: 844px;
+      border-radius: 44px;
+      background: var(--bg);
+      border: 3px solid #444;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.05) inset;
+    }
 
-// --- CONVERSATION SCRIPT ---
-const screens = [
+    /* --- STATUS BAR --- */
+    .status-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 24px 4px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--white);
+      flex-shrink: 0;
+    }
+    .status-icons { display: flex; gap: 6px; align-items: center; }
+
+    /* --- HEADER --- */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 16px 12px;
+      flex-shrink: 0;
+    }
+    .header-left { display: flex; align-items: center; gap: 12px; }
+    .gemini-icon {
+      width: 28px; height: 28px; border-radius: 14px;
+      background: linear-gradient(135deg, #4285f4, #ea4335, #fbbc05, #34a853);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .avatar {
+      width: 32px; height: 32px; border-radius: 16px;
+      background: linear-gradient(135deg, #f4a261, #e76f51);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; color: white; font-weight: 600;
+      border: 2px solid var(--border);
+    }
+
+    /* --- NAV TABS --- */
+    .nav-tabs {
+      display: flex;
+      gap: 16px;
+      padding: 0 16px 12px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .nav-tabs span { font-size: 13px; color: var(--dim); padding-bottom: 6px; cursor: pointer; }
+    .nav-tabs span.active { color: var(--accent); font-weight: 600; border-bottom: 2px solid var(--accent); }
+
+    /* --- SCROLL AREA --- */
+    .scroll-area {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      scroll-behavior: smooth;
+    }
+    .scroll-area::-webkit-scrollbar { width: 0; }
+
+    /* --- WELCOME --- */
+    .welcome {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100%;
+      padding: 20px;
+    }
+    .welcome h1 {
+      font-size: 24px;
+      font-weight: 300;
+      color: var(--white);
+      text-align: center;
+      line-height: 1.4;
+    }
+    .suggestions { margin-top: 40px; width: 100%; }
+    .suggestion-chip {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+      color: var(--ai-text);
+      line-height: 1.4;
+    }
+    .suggestion-chip:last-child { border-bottom: none; }
+
+    /* --- MESSAGES --- */
+    .messages { padding: 8px 0 16px; }
+    .user-bubble-wrap { display: flex; justify-content: flex-end; padding: 0 16px; margin-bottom: 12px; }
+    .user-bubble {
+      background: var(--user-bubble);
+      border-radius: 18px;
+      padding: 12px 16px;
+      max-width: 85%;
+      font-size: 15px;
+      color: var(--white);
+      line-height: 1.5;
+      animation: slideUp 0.3s ease-out;
+    }
+    .ai-block { padding: 8px 16px; }
+    .ai-block .heading { font-size: 16px; font-weight: 700; color: var(--white); margin: 16px 0 8px; }
+    .ai-block .para { font-size: 14.5px; color: var(--ai-text); line-height: 1.6; margin: 6px 0; }
+    .ai-block .bullet { font-size: 14.5px; color: var(--ai-text); line-height: 1.6; margin: 4px 0; padding-left: 12px; }
+    .ai-block strong { color: var(--white); font-weight: 600; }
+
+    /* --- PRODUCT CARD --- */
+    .product-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      margin: 8px 0;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .product-card .thumb {
+      width: 64px; height: 64px; border-radius: 8px;
+      background: linear-gradient(135deg, #2a2a4a, #3a3a5a);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .product-card .info { flex: 1; }
+    .product-card .name { font-size: 14px; font-weight: 600; color: var(--accent); line-height: 1.3; margin-bottom: 4px; }
+    .product-card .price { font-size: 14px; color: var(--white); font-weight: 500; }
+    .product-card .meta { font-size: 12px; color: var(--dim); margin-top: 2px; }
+
+    /* --- TABLE --- */
+    .compare-table { overflow-x: auto; margin: 12px 0; border-radius: 8px; border: 1px solid var(--border); }
+    .compare-table table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .compare-table th {
+      padding: 8px 10px; background: var(--surface); color: var(--accent);
+      text-align: left; border-bottom: 1px solid var(--border); font-weight: 600;
+    }
+    .compare-table td {
+      padding: 8px 10px; color: var(--ai-text); border-bottom: 1px solid var(--border);
+      vertical-align: top; line-height: 1.4;
+    }
+    .compare-table td:first-child { color: var(--dim); font-weight: 500; white-space: nowrap; }
+    .compare-table td strong { color: var(--white); }
+
+    /* --- THINKING --- */
+    .thinking {
+      padding: 20px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      animation: fadeIn 0.3s;
+    }
+    .thinking .dot {
+      width: 24px; height: 24px; border-radius: 12px;
+      background: linear-gradient(135deg, #4285f4, #ea4335, #fbbc05, #34a853);
+      animation: pulse 1.5s infinite;
+    }
+    .thinking span { font-size: 15px; color: var(--dim); }
+
+    /* --- INPUT BAR --- */
+    .input-bar { padding: 8px 12px 8px; border-top: 1px solid var(--border); background: var(--bg); flex-shrink: 0; }
+    .input-bar .has-text {
+      background: var(--user-bubble);
+      border-radius: 20px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+    }
+    .input-bar .has-text .text { flex: 1; font-size: 15px; color: var(--white); line-height: 1.45; }
+    .input-bar .send-btn {
+      width: 32px; height: 32px; border-radius: 16px;
+      background: var(--accent); border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: transform 0.15s;
+    }
+    .input-bar .send-btn:hover { transform: scale(1.1); }
+    .input-bar .empty {
+      display: flex; align-items: center; gap: 12px;
+    }
+    .input-bar .add-btn {
+      width: 28px; height: 28px; border-radius: 14px;
+      border: 1px solid var(--border); background: transparent;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--dim); font-size: 18px; cursor: pointer;
+    }
+    .input-bar .field {
+      flex: 1; background: var(--surface); border-radius: 20px;
+      padding: 10px 16px; font-size: 15px; color: var(--dim);
+    }
+
+    /* --- HOME INDICATOR --- */
+    .home-indicator { display: flex; justify-content: center; padding: 6px 0 8px; flex-shrink: 0; }
+    .home-indicator div { width: 134px; height: 5px; border-radius: 3px; background: var(--dim); }
+
+    /* --- CURSOR BLINK --- */
+    .cursor { display: inline-block; width: 2px; height: 1em; background: var(--accent); margin-left: 1px; animation: blink 0.8s infinite; vertical-align: text-bottom; }
+
+    /* --- ANIMATIONS --- */
+    @keyframes pulse { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:0.6; transform:scale(0.9); } }
+    @keyframes blink { 0%,100% { opacity:1; } 50% { opacity:0; } }
+    @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+    @keyframes slideUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+
+    /* --- RESPONSIVE --- */
+    @media (max-width: 440px) {
+      body { padding: 0; }
+      .phone { width: 100vw; height: 100vh; border-radius: 0; border: none; }
+      .controls { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="controls" id="controls">
+  <button onclick="resetDemo()">⟲ Reset</button>
+  <button id="autoBtn" onclick="toggleAutoPlay()">▶ Auto Play</button>
+  <button id="nextBtn" onclick="advance()" disabled>Next →</button>
+  <span class="counter" id="counter">1/5</span>
+</div>
+
+<div class="phone" id="phone">
+  <div class="status-bar">
+    <span>9:41</span>
+    <div class="status-icons">
+      <svg width="16" height="12" viewBox="0 0 16 12" fill="white"><rect x="0" y="8" width="3" height="4" rx=".5"/><rect x="4.5" y="5" width="3" height="7" rx=".5"/><rect x="9" y="2" width="3" height="10" rx=".5"/><rect x="13.5" y="0" width="2.5" height="12" rx=".5"/></svg>
+      <svg width="15" height="12" viewBox="0 0 15 12" fill="white"><path d="M7.5 3.6C9.3 3.6 10.9 4.3 12.1 5.4L13.5 4C11.9 2.5 9.8 1.5 7.5 1.5S3.1 2.5 1.5 4L2.9 5.4C4.1 4.3 5.7 3.6 7.5 3.6ZM7.5 7.2C8.5 7.2 9.4 7.6 10.1 8.2L11.5 6.8C10.4 5.8 9 5.1 7.5 5.1S4.6 5.8 3.5 6.8L4.9 8.2C5.6 7.6 6.5 7.2 7.5 7.2Z"/><circle cx="7.5" cy="10.5" r="1.5"/></svg>
+      <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0" y="1" width="22" height="10" rx="2" stroke="white" stroke-width="1"/><rect x="23" y="4" width="2" height="4" rx=".5" fill="white"/><rect x="1.5" y="2.5" width="18" height="7" rx="1" fill="white"/></svg>
+    </div>
+  </div>
+
+  <div class="header" id="header"></div>
+  <div id="navTabs"></div>
+  <div class="scroll-area" id="scrollArea"></div>
+  <div class="input-bar" id="inputBar"></div>
+  <div class="home-indicator"><div></div></div>
+</div>
+
+<script>
+// ============================================================
+// CONVERSATION SCRIPT DATA
+// ============================================================
+const SCREENS = [
+  { id:"welcome", type:"welcome" },
   {
-    id: "welcome",
-    type: "welcome",
+    id:"user-query", type:"user-sends",
+    userMessage: "I'm scaling up my architecture practice—working solo but taking on bigger projects. I need a laptop that handles 3D rendering and BIM software, lasts through full-day client meetings without needing a charger, and won't break the bank. What should I get?"
   },
+  { id:"thinking", type:"thinking" },
   {
-    id: "user-query",
-    type: "user-sends",
-    userMessage: "I'm scaling up my architecture practice—working solo but taking on bigger projects. I need a laptop that handles 3D rendering and BIM software, lasts through full-day client meetings without needing a charger, and won't break the bank. What should I get?",
-  },
-  {
-    id: "thinking",
-    type: "thinking",
-  },
-  {
-    id: "ai-response-1",
-    type: "ai-response",
+    id:"ai-response-1", type:"ai-response",
     content: [
-      { type: "paragraph", text: "To handle architectural scaling, you need a machine that balances **single-core clock speed** for BIM modeling (Revit/ArchiCAD) with **multi-core/GPU power** for 3D rendering (V-Ray/Lumion)." },
-      { type: "heading", text: "Professional Workstation Options" },
-      { type: "paragraph", text: "These models are designed specifically for AEC (Architecture, Engineering, and Construction) workflows, featuring **ISV certifications** that guarantee software stability." },
-      { type: "paragraph", text: "The **Dell Pro 16 Plus** is a versatile choice for a growing practice. It offers a **16-inch display** and is powered by an **Intel Core Ultra processor** with a built-in **AI Boost NPU**, which helps manage background tasks to preserve battery life. It is rated for **up to 12.6 hours of runtime**, making it suitable for a full day of client meetings." },
-      { type: "product-card", name: "Dell Pro 16 Plus", price: "$1,449.00", brand: "Dell", rating: "4.1", reviews: "97k+" },
-      { type: "paragraph", text: "For those who prioritize mobility without sacrificing professional-grade graphics, the **HP ZBook 8 G1i** is a newly redesigned **16-inch mobile workstation**. It features **pro-level graphics** tailored for advanced AI and 3D workflows and is built to be small enough to fit easily in a bag for on-site visits." },
-      { type: "product-card", name: "HP ZBook 8 G1i 16\" Mobile Workstation Intel Core Ultra 7", price: "$1,699.00", brand: "HP", rating: "4.9", reviews: "41" },
-      { type: "heading", text: "Highly Portable Alternatives" },
-      { type: "paragraph", text: "The **Asus ProArt PX13** is a **13.3-inch convertible laptop** that functions as both a laptop and a tablet. It features a **3K OLED touchscreen** and the **Asus DialPad**, which can be mapped to shortcuts in software like Rhino or Photoshop. Despite its small size, it packs an **RTX 4050 GPU** and **32GB of RAM**, meeting the heavy memory requirements of BIM." },
-      { type: "heading", text: "Summary Recommendation" },
-      { type: "bullet", text: "**For the best BIM performance:** Choose the **HP ZBook 8 G1i 16**; its combination of 32GB RAM and an Intel Ultra processor provides the stability needed for large Revit files." },
-      { type: "bullet", text: "**For pure portability:** The **Asus Zenbook S 16** is the lightest 16-inch option that can still handle moderate 3D workloads." },
-      { type: "table", headers: ["", "HP ZBook 8 G1i ⭐", "Dell Precision 16 Plus", "ASUS Zenbook S 16"], rows: [
-        ["Best For", "Mobile professionals needing workstation power", "Raw performance, primarily stationary work", "Maximum portability, light workflows"],
-        ["BIM Performance", "🎯 Purpose-built, ISV-certified", "Excellent, 32GB RAM excels", "⚠️ Inadequate for professional BIM"],
-        ["Battery Life", "Up to 15 hours", "Under heavy load limited", "Excellent"],
-        ["Price", "$1,500–4,000+", "$2,000–3,500", "$1,200–1,800"],
-      ]},
-    ],
+      { t:"p", text:"To handle architectural scaling, you need a machine that balances <b>single-core clock speed</b> for BIM modeling (Revit/ArchiCAD) with <b>multi-core/GPU power</b> for 3D rendering (V-Ray/Lumion)." },
+      { t:"h", text:"Professional Workstation Options" },
+      { t:"p", text:"These models are designed specifically for AEC (Architecture, Engineering, and Construction) workflows, featuring <b>ISV certifications</b> that guarantee software stability." },
+      { t:"p", text:"The <b>Dell Pro 16 Plus</b> is a versatile choice for a growing practice. It offers a <b>16-inch display</b> and is powered by an <b>Intel Core Ultra processor</b> with a built-in <b>AI Boost NPU</b>, which helps manage background tasks to preserve battery life. It is rated for <b>up to 12.6 hours of runtime</b>, making it suitable for a full day of client meetings." },
+      { t:"card", name:"Dell Pro 16 Plus", price:"$1,449.00", brand:"Dell", rating:"4.1", reviews:"97k+" },
+      { t:"p", text:"For those who prioritize mobility without sacrificing professional-grade graphics, the <b>HP ZBook 8 G1i</b> is a newly redesigned <b>16-inch mobile workstation</b>. It features <b>pro-level graphics</b> tailored for advanced AI and 3D workflows and is built to be small enough to fit easily in a bag for on-site visits." },
+      { t:"card", name:"HP ZBook 8 G1i 16\" Mobile Workstation Intel Core Ultra 7", price:"$1,699.00", brand:"HP", rating:"4.9", reviews:"41" },
+      { t:"h", text:"Highly Portable Alternatives" },
+      { t:"p", text:"The <b>Asus ProArt PX13</b> is a <b>13.3-inch convertible laptop</b> that functions as both a laptop and a tablet. It features a <b>3K OLED touchscreen</b> and the <b>Asus DialPad</b>, which can be mapped to shortcuts in software like Rhino or Photoshop. Despite its small size, it packs an <b>RTX 4050 GPU</b> and <b>32GB of RAM</b>, meeting the heavy memory requirements of BIM." },
+      { t:"h", text:"Summary Recommendation" },
+      { t:"li", text:"<b>For the best BIM performance:</b> Choose the <b>HP ZBook 8 G1i 16</b>; its combination of 32GB RAM and an Intel Ultra processor provides the stability needed for large Revit files." },
+      { t:"li", text:"<b>For pure portability:</b> The <b>Asus Zenbook S 16</b> is the lightest 16-inch option that can still handle moderate 3D workloads." },
+      { t:"table", headers:["","HP ZBook 8 G1i ⭐","Dell Precision 16 Plus","ASUS Zenbook S 16"], rows:[
+        ["Best For","Mobile professionals needing workstation power","Raw performance, primarily stationary work","Maximum portability, light workflows"],
+        ["BIM Performance","🎯 Purpose-built, ISV-certified","Excellent, 32GB RAM excels","⚠️ Inadequate for professional BIM"],
+        ["Battery","Up to 15 hours","Limited under heavy load","Excellent"],
+        ["Price","$1,500–4,000+","$2,000–3,500","$1,200–1,800"]
+      ]}
+    ]
   },
   {
-    id: "user-response-2",
-    type: "user-sends",
-    userMessage: "I really like the HP option as I don't want to compromise on the performance element, also I have some 4k HD True colour monitors from HP, and I'm impressed.",
-    previousAiSummary: true,
-  },
+    id:"user-response-2", type:"user-sends",
+    userMessage: "I really like the HP option as I don't want to compromise on the performance element, also I have some 4k HD True colour monitors from HP, and I'm impressed."
+  }
 ];
 
-// --- RICH TEXT RENDERER ---
-function renderBold(text) {
-  if (!text) return text;
-  const parts = text.split(/(\*\*[^*]+\*\*)/g);
-  return parts.map((part, i) => {
-    if (part.startsWith("**") && part.endsWith("**")) {
-      return <strong key={i} style={{ color: theme.white, fontWeight: 600 }}>{part.slice(2, -2)}</strong>;
-    }
-    return part;
-  });
+// ============================================================
+// STATE
+// ============================================================
+let current = 0;
+let autoPlay = false;
+let animating = false;
+let typingTimer = null;
+let thinkingTimer = null;
+let thinkingDotsTimer = null;
+const messageHistory = []; // {type:'user'|'ai'|'thinking', html:string}
+
+// ============================================================
+// HELPERS
+// ============================================================
+const $ = id => document.getElementById(id);
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+function scrollToBottom() {
+  const el = $('scrollArea');
+  el.scrollTop = el.scrollHeight;
 }
 
-// --- COMPONENTS ---
+function stripHtml(html) {
+  const tmp = document.createElement('div');
+  tmp.innerHTML = html;
+  return tmp.textContent || '';
+}
 
-function StatusBar() {
-  return (
-    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 20px 4px", fontSize: 14, fontWeight: 600, color: theme.white }}>
-      <span>9:41</span>
-      <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-        <svg width="16" height="12" viewBox="0 0 16 12" fill="white"><rect x="0" y="8" width="3" height="4" rx="0.5"/><rect x="4.5" y="5" width="3" height="7" rx="0.5"/><rect x="9" y="2" width="3" height="10" rx="0.5"/><rect x="13.5" y="0" width="2.5" height="12" rx="0.5"/></svg>
-        <svg width="15" height="12" viewBox="0 0 15 12" fill="white"><path d="M7.5 3.6C9.3 3.6 10.9 4.3 12.1 5.4L13.5 4C11.9 2.5 9.8 1.5 7.5 1.5S3.1 2.5 1.5 4L2.9 5.4C4.1 4.3 5.7 3.6 7.5 3.6ZM7.5 7.2C8.5 7.2 9.4 7.6 10.1 8.2L11.5 6.8C10.4 5.8 9 5.1 7.5 5.1S4.6 5.8 3.5 6.8L4.9 8.2C5.6 7.6 6.5 7.2 7.5 7.2Z"/><circle cx="7.5" cy="10.5" r="1.5"/></svg>
-        <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0" y="1" width="22" height="10" rx="2" stroke="white" strokeWidth="1"/><rect x="23" y="4" width="2" height="4" rx="0.5" fill="white"/><rect x="1.5" y="2.5" width="18" height="7" rx="1" fill="white"/></svg>
+function updateCounter() {
+  $('counter').textContent = `${current+1}/${SCREENS.length}`;
+}
+
+function setNextEnabled(v) {
+  $('nextBtn').disabled = !v;
+  $('nextBtn').classList.toggle('primary', v);
+}
+
+// ============================================================
+// RENDER HEADER
+// ============================================================
+function renderHeader(showBack) {
+  $('header').innerHTML = `
+    <div class="header-left">
+      ${showBack ? '<svg width="20" height="20" viewBox="0 0 20 20"><path d="M13 15L8 10L13 5" stroke="#9999bb" stroke-width="2" fill="none" stroke-linecap="round"/></svg>' : ''}
+      <div class="gemini-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
+    </div>
+    <div class="avatar">M</div>
+  `;
+}
+
+function renderNavTabs(show) {
+  if (!show) { $('navTabs').innerHTML = ''; return; }
+  $('navTabs').innerHTML = `<div class="nav-tabs"><span class="active">AI Mode</span><span>Everything</span><span>Images</span><span>Videos</span><span>News</span></div>`;
+}
+
+// ============================================================
+// RENDER INPUT BAR
+// ============================================================
+function renderInputEmpty() {
+  $('inputBar').innerHTML = `
+    <div class="empty">
+      <button class="add-btn">+</button>
+      <div class="field">Ask anything</div>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="#9999bb"><path d="M12 15c1.66 0 3-1.34 3-3V6c0-1.66-1.34-3-3-3S9 4.34 9 6v6c0 1.66 1.34 3 3 3zm5-3c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-2.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="#9999bb"><circle cx="12" cy="12" r="9" stroke="#9999bb" stroke-width="2" fill="none"/><path d="M12 8v4M12 16h.01" stroke="#9999bb" stroke-width="2" stroke-linecap="round"/></svg>
+    </div>`;
+}
+
+function renderInputWithText(text) {
+  $('inputBar').innerHTML = `
+    <div class="has-text">
+      <div class="text">${text}</div>
+      <button class="send-btn" onclick="sendUserMessage()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M2 21l21-9L2 3v7l15 2-15 2v7z"/></svg>
+      </button>
+    </div>`;
+}
+
+// ============================================================
+// RENDER CONTENT AREA
+// ============================================================
+function renderWelcome() {
+  $('scrollArea').innerHTML = `
+    <div class="welcome">
+      <h1>Hi Macie. What do you<br>have in mind?</h1>
+      <div class="suggestions">
+        <div class="suggestion-chip"><span>Tell me what types of plastics exist and if they can be recycled.</span><svg width="18" height="18" viewBox="0 0 24 24" fill="#9999bb"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg></div>
+        <div class="suggestion-chip"><span>Free local events this week</span><svg width="18" height="18" viewBox="0 0 24 24" fill="#9999bb"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg></div>
+        <div class="suggestion-chip"><span>Make a table comparing the different methods of making coffee</span><svg width="18" height="18" viewBox="0 0 24 24" fill="#9999bb"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg></div>
       </div>
-    </div>
-  );
+    </div>`;
 }
 
-function GeminiHeader({ showBack }) {
-  return (
-    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 16px 12px" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-        {showBack && (
-          <svg width="20" height="20" viewBox="0 0 20 20" fill={theme.dimText}><path d="M13 15L8 10L13 5" stroke={theme.dimText} strokeWidth="2" fill="none" strokeLinecap="round"/></svg>
-        )}
-        <div style={{ width: 28, height: 28, borderRadius: 14, background: "linear-gradient(135deg, #4285f4, #ea4335, #fbbc05, #34a853)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-        </div>
-      </div>
-      <div style={{ width: 32, height: 32, borderRadius: 16, overflow: "hidden", border: `2px solid ${theme.borderColor}` }}>
-        <div style={{ width: "100%", height: "100%", background: "linear-gradient(135deg, #f4a261, #e76f51)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, color: "white", fontWeight: 600 }}>M</div>
-      </div>
-    </div>
-  );
+function renderMessages() {
+  let html = '<div class="messages">';
+  for (const m of messageHistory) { html += m.html; }
+  html += '</div>';
+  $('scrollArea').innerHTML = html;
+  scrollToBottom();
 }
 
-function NavTabs() {
-  const tabs = ["AI Mode", "Everything", "Images", "Videos", "News"];
-  return (
-    <div style={{ display: "flex", gap: 16, padding: "0 16px 12px", borderBottom: `1px solid ${theme.borderColor}` }}>
-      {tabs.map((t, i) => (
-        <span key={t} style={{ fontSize: 13, fontWeight: i === 0 ? 600 : 400, color: i === 0 ? theme.accent : theme.dimText, paddingBottom: 6, borderBottom: i === 0 ? `2px solid ${theme.accent}` : "none" }}>{t}</span>
-      ))}
+// ============================================================
+// BUILD HTML FOR CONTENT BLOCKS
+// ============================================================
+function buildProductCard(b) {
+  return `<div class="product-card">
+    <div class="thumb"><svg width="32" height="32" viewBox="0 0 24 24" fill="#9999bb"><path d="M20 18c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2H0v2h24v-2h-4zM4 6h16v10H4V6z"/></svg></div>
+    <div class="info">
+      <div class="name">${b.name}</div>
+      <div class="price">${b.price}</div>
+      <div class="meta">${b.brand} ${b.rating} ★ (${b.reviews})</div>
     </div>
-  );
+  </div>`;
 }
 
-function InputBar({ value, onSend, sending }) {
-  return (
-    <div style={{ padding: "8px 12px 24px", borderTop: `1px solid ${theme.borderColor}`, background: theme.bg }}>
-      {value ? (
-        <div style={{ background: theme.userBubble, borderRadius: 20, padding: "12px 16px", display: "flex", alignItems: "flex-end", gap: 8 }}>
-          <div style={{ flex: 1, fontSize: 15, color: theme.white, lineHeight: 1.45 }}>{value}</div>
-          <button onClick={onSend} style={{ width: 32, height: 32, borderRadius: 16, background: theme.accent, border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M2 21l21-9L2 3v7l15 2-15 2v7z"/></svg>
-          </button>
-        </div>
-      ) : (
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div style={{ width: 28, height: 28, borderRadius: 14, border: `1px solid ${theme.borderColor}`, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <span style={{ color: theme.dimText, fontSize: 18 }}>+</span>
-          </div>
-          <div style={{ flex: 1, background: theme.surface, borderRadius: 20, padding: "10px 16px", fontSize: 15, color: theme.dimText }}>Ask anything</div>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill={theme.dimText}><path d="M12 15c1.66 0 3-1.34 3-3V6c0-1.66-1.34-3-3-3S9 4.34 9 6v6c0 1.66 1.34 3 3 3zm5-3c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-2.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill={theme.dimText}><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function ProductCard({ name, price, brand, rating, reviews }) {
-  return (
-    <div style={{ background: theme.surface, border: `1px solid ${theme.borderColor}`, borderRadius: 12, padding: 14, margin: "8px 0", display: "flex", gap: 12, alignItems: "center" }}>
-      <div style={{ width: 64, height: 64, borderRadius: 8, background: "linear-gradient(135deg, #2a2a4a, #3a3a5a)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-        <svg width="32" height="32" viewBox="0 0 24 24" fill={theme.dimText}><path d="M20 18c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2H0v2h24v-2h-4zM4 6h16v10H4V6z"/></svg>
-      </div>
-      <div style={{ flex: 1 }}>
-        <div style={{ fontSize: 14, fontWeight: 600, color: theme.accent, lineHeight: 1.3, marginBottom: 4 }}>{name}</div>
-        <div style={{ fontSize: 14, color: theme.white, fontWeight: 500 }}>{price}</div>
-        <div style={{ fontSize: 12, color: theme.dimText, marginTop: 2 }}>{brand} {rating} ★ ({reviews})</div>
-      </div>
-    </div>
-  );
-}
-
-function ComparisonTable({ headers, rows }) {
-  return (
-    <div style={{ overflowX: "auto", margin: "12px 0", borderRadius: 8, border: `1px solid ${theme.borderColor}` }}>
-      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
-        <thead>
-          <tr>{headers.map((h, i) => <th key={i} style={{ padding: "8px 10px", background: theme.surface, color: theme.accent, textAlign: "left", borderBottom: `1px solid ${theme.borderColor}`, fontWeight: 600, whiteSpace: i === 0 ? "nowrap" : "normal", minWidth: i === 0 ? 80 : 100 }}>{h}</th>)}</tr>
-        </thead>
-        <tbody>
-          {rows.map((row, ri) => (
-            <tr key={ri}>{row.map((cell, ci) => <td key={ci} style={{ padding: "8px 10px", color: ci === 0 ? theme.dimText : theme.aiText, borderBottom: `1px solid ${theme.borderColor}`, verticalAlign: "top", fontWeight: ci === 0 ? 500 : 400, lineHeight: 1.4 }}>{renderBold(cell)}</td>)}</tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
-function ThinkingIndicator() {
-  const [dots, setDots] = useState("");
-  useEffect(() => {
-    const iv = setInterval(() => setDots(d => d.length >= 3 ? "" : d + "."), 400);
-    return () => clearInterval(iv);
-  }, []);
-  return (
-    <div style={{ padding: "20px 16px", display: "flex", alignItems: "center", gap: 8 }}>
-      <div style={{ width: 24, height: 24, borderRadius: 12, background: "linear-gradient(135deg, #4285f4, #ea4335, #fbbc05, #34a853)", animation: "pulse 1.5s infinite" }} />
-      <span style={{ fontSize: 15, color: theme.dimText }}>Thinking{dots}</span>
-      <style>{`@keyframes pulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(0.9); } }`}</style>
-    </div>
-  );
-}
-
-// --- TYPEWRITER for AI content ---
-function TypewriterContent({ content, onDone }) {
-  const [visibleBlocks, setVisibleBlocks] = useState(0);
-  const [charIndex, setCharIndex] = useState(0);
-  const scrollRef = useRef(null);
-
-  const currentBlock = content[visibleBlocks];
-  const isTextBlock = currentBlock && (currentBlock.type === "paragraph" || currentBlock.type === "heading" || currentBlock.type === "bullet");
-  const fullText = isTextBlock ? currentBlock.text : "";
-
-  useEffect(() => {
-    if (visibleBlocks >= content.length) {
-      onDone && onDone();
-      return;
-    }
-    if (!isTextBlock) {
-      // non-text block: show instantly, move to next
-      const t = setTimeout(() => {
-        setVisibleBlocks(v => v + 1);
-        setCharIndex(0);
-      }, 300);
-      return () => clearTimeout(t);
-    }
-    if (charIndex < fullText.length) {
-      const t = setTimeout(() => setCharIndex(c => Math.min(c + 3, fullText.length)), TYPING_SPEED);
-      return () => clearTimeout(t);
-    } else {
-      // block done
-      const t = setTimeout(() => {
-        setVisibleBlocks(v => v + 1);
-        setCharIndex(0);
-      }, 100);
-      return () => clearTimeout(t);
-    }
-  }, [visibleBlocks, charIndex, content.length, isTextBlock, fullText.length]);
-
-  useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
-  });
-
-  function renderBlock(block, idx, partial) {
-    const text = partial !== undefined ? partial : block.text;
-    switch (block.type) {
-      case "heading":
-        return <div key={idx} style={{ fontSize: 16, fontWeight: 700, color: theme.white, margin: "16px 0 8px" }}>{renderBold(text)}</div>;
-      case "paragraph":
-        return <div key={idx} style={{ fontSize: 14.5, color: theme.aiText, lineHeight: 1.6, margin: "6px 0" }}>{renderBold(text)}</div>;
-      case "bullet":
-        return <div key={idx} style={{ fontSize: 14.5, color: theme.aiText, lineHeight: 1.6, margin: "4px 0", paddingLeft: 12 }}>• {renderBold(text)}</div>;
-      case "product-card":
-        return <ProductCard key={idx} {...block} />;
-      case "table":
-        return <ComparisonTable key={idx} headers={block.headers} rows={block.rows} />;
-      default:
-        return null;
-    }
+function buildTable(b) {
+  let h = '<div class="compare-table"><table><thead><tr>';
+  for (const th of b.headers) h += `<th>${th}</th>`;
+  h += '</tr></thead><tbody>';
+  for (const row of b.rows) {
+    h += '<tr>';
+    for (const td of row) h += `<td>${td}</td>`;
+    h += '</tr>';
   }
-
-  return (
-    <div ref={scrollRef}>
-      {content.slice(0, visibleBlocks).map((b, i) => renderBlock(b, i))}
-      {visibleBlocks < content.length && isTextBlock && renderBlock(currentBlock, visibleBlocks, fullText.slice(0, charIndex))}
-    </div>
-  );
+  h += '</tbody></table></div>';
+  return h;
 }
 
-function UserBubble({ text }) {
-  return (
-    <div style={{ display: "flex", justifyContent: "flex-end", padding: "0 16px", marginBottom: 12 }}>
-      <div style={{ background: theme.userBubble, borderRadius: 18, padding: "12px 16px", maxWidth: "85%", fontSize: 15, color: theme.white, lineHeight: 1.5 }}>{text}</div>
-    </div>
-  );
+function buildBlockHtml(b) {
+  switch(b.t) {
+    case 'h': return `<div class="heading">${b.text}</div>`;
+    case 'p': return `<div class="para">${b.text}</div>`;
+    case 'li': return `<div class="bullet">• ${b.text}</div>`;
+    case 'card': return buildProductCard(b);
+    case 'table': return buildTable(b);
+    default: return '';
+  }
 }
 
-function SuggestionChips() {
-  const chips = [
-    "Tell me what types of plastics exist and if they can be recycled.",
-    "Free local events this week",
-    "Make a table comparing the different methods of making coffee",
-  ];
-  return (
-    <div style={{ padding: "0 16px" }}>
-      {chips.map((c, i) => (
-        <div key={i} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 0", borderBottom: i < chips.length - 1 ? `1px solid ${theme.borderColor}` : "none" }}>
-          <span style={{ fontSize: 14, color: theme.aiText, lineHeight: 1.4, flex: 1 }}>{c}</span>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill={theme.dimText} style={{ flexShrink: 0, marginLeft: 12 }}><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-        </div>
-      ))}
-    </div>
-  );
+function buildAllBlocksHtml(blocks) {
+  return blocks.map(buildBlockHtml).join('');
 }
 
-// --- MAIN APP ---
-export default function GeminiDemo() {
-  const [currentScreen, setCurrentScreen] = useState(0);
-  const [phase, setPhase] = useState("idle"); // idle, animating, done
-  const [showUserMsg, setShowUserMsg] = useState(false);
-  const [aiDone, setAiDone] = useState(false);
-  const scrollAreaRef = useRef(null);
-  const [isAutoPlaying, setIsAutoPlaying] = useState(false);
-  const autoPlayRef = useRef(false);
+// ============================================================
+// TYPEWRITER ENGINE
+// ============================================================
+async function typewriteAiResponse(blocks) {
+  animating = true;
+  setNextEnabled(false);
 
-  const screen = screens[currentScreen];
+  // Add an empty AI block to message history
+  const idx = messageHistory.length;
+  messageHistory.push({ type:'ai', html:'<div class="ai-block" id="aiBlock"></div>' });
+  renderMessages();
 
-  const advance = useCallback(() => {
-    if (currentScreen < screens.length - 1) {
-      setCurrentScreen(c => c + 1);
-      setPhase("idle");
-      setShowUserMsg(false);
-      setAiDone(false);
+  const container = document.getElementById('aiBlock');
+  if (!container) { animating = false; return; }
+
+  for (let bi = 0; bi < blocks.length; bi++) {
+    const block = blocks[bi];
+    const isText = block.t === 'h' || block.t === 'p' || block.t === 'li';
+
+    if (!isText) {
+      // Instant render for cards/tables
+      container.insertAdjacentHTML('beforeend', buildBlockHtml(block));
+      scrollToBottom();
+      await sleep(200);
+      continue;
     }
-  }, [currentScreen]);
 
-  // Auto-start animation when screen changes
-  useEffect(() => {
-    if (screen.type === "welcome") {
-      setPhase("done");
-    } else if (screen.type === "user-sends") {
-      const t = setTimeout(() => setShowUserMsg(true), USER_MSG_DELAY);
-      return () => clearTimeout(t);
-    } else if (screen.type === "thinking") {
-      setPhase("animating");
-      const t = setTimeout(() => {
-        setPhase("done");
-        if (autoPlayRef.current) {
-          setTimeout(advance, 500);
+    // Create element
+    const cls = block.t === 'h' ? 'heading' : block.t === 'li' ? 'bullet' : 'para';
+    const prefix = block.t === 'li' ? '• ' : '';
+    const el = document.createElement('div');
+    el.className = cls;
+    container.appendChild(el);
+
+    // Typewrite the plain text, then set full HTML at end
+    const plain = stripHtml(block.text);
+    const fullHtml = prefix + block.text;
+    let charIdx = 0;
+    const speed = 8;
+
+    await new Promise(resolve => {
+      typingTimer = setInterval(() => {
+        charIdx = Math.min(charIdx + 3, plain.length);
+        el.innerHTML = prefix + plain.slice(0, charIdx) + '<span class="cursor"></span>';
+        scrollToBottom();
+        if (charIdx >= plain.length) {
+          clearInterval(typingTimer);
+          typingTimer = null;
+          el.innerHTML = fullHtml; // restore bold formatting
+          resolve();
         }
-      }, THINKING_DURATION);
-      return () => clearTimeout(t);
-    } else if (screen.type === "ai-response") {
-      setPhase("animating");
-    }
-  }, [currentScreen, screen.type, advance]);
-
-  useEffect(() => {
-    if (showUserMsg && screen.type === "user-sends") {
-      setPhase("done");
-      if (autoPlayRef.current) {
-        setTimeout(advance, 1200);
-      }
-    }
-  }, [showUserMsg, screen.type, advance]);
-
-  useEffect(() => {
-    if (aiDone && autoPlayRef.current) {
-      setTimeout(advance, 2000);
-    }
-  }, [aiDone, advance]);
-
-  // Scroll to bottom
-  useEffect(() => {
-    if (scrollAreaRef.current) {
-      const el = scrollAreaRef.current;
-      el.scrollTop = el.scrollHeight;
-    }
-  });
-
-  const toggleAutoPlay = () => {
-    const next = !isAutoPlaying;
-    setIsAutoPlaying(next);
-    autoPlayRef.current = next;
-    if (next && (phase === "done")) {
-      advance();
-    }
-  };
-
-  // Collect all visible messages up to current screen
-  const messages = [];
-  for (let i = 0; i <= currentScreen; i++) {
-    const s = screens[i];
-    if (s.type === "user-sends" && (i < currentScreen || showUserMsg)) {
-      messages.push({ type: "user", text: s.userMessage });
-    }
-    if (s.type === "ai-response") {
-      if (i < currentScreen) {
-        messages.push({ type: "ai", content: s.content, done: true });
-      } else if (i === currentScreen) {
-        messages.push({ type: "ai", content: s.content, done: false });
-      }
-    }
-    if (s.type === "thinking" && i === currentScreen && phase === "animating") {
-      messages.push({ type: "thinking" });
-    }
+      }, speed);
+    });
+    await sleep(60);
   }
 
-  const isWelcome = screen.type === "welcome";
-  const canAdvance = phase === "done" || aiDone;
-
-  return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "100vh", background: "#0a0a1a", padding: 20, fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
-      {/* Controls */}
-      <div style={{ display: "flex", gap: 12, marginBottom: 16, alignItems: "center" }}>
-        <button onClick={() => { setCurrentScreen(0); setPhase("idle"); setShowUserMsg(false); setAiDone(false); setIsAutoPlaying(false); autoPlayRef.current = false; }} style={{ padding: "8px 16px", borderRadius: 8, background: theme.surface, color: theme.dimText, border: `1px solid ${theme.borderColor}`, cursor: "pointer", fontSize: 13 }}>⟲ Reset</button>
-        <button onClick={toggleAutoPlay} style={{ padding: "8px 16px", borderRadius: 8, background: isAutoPlaying ? theme.accent : theme.surface, color: isAutoPlaying ? "#000" : theme.dimText, border: `1px solid ${theme.borderColor}`, cursor: "pointer", fontSize: 13, fontWeight: 600 }}>{isAutoPlaying ? "⏸ Pause" : "▶ Auto Play"}</button>
-        <button onClick={advance} disabled={!canAdvance || currentScreen >= screens.length - 1} style={{ padding: "8px 16px", borderRadius: 8, background: canAdvance ? theme.accent : theme.surface, color: canAdvance ? "#000" : theme.dimText, border: `1px solid ${theme.borderColor}`, cursor: canAdvance ? "pointer" : "default", fontSize: 13, fontWeight: 600, opacity: canAdvance ? 1 : 0.5 }}>Next →</button>
-        <span style={{ fontSize: 12, color: theme.dimText }}>{currentScreen + 1}/{screens.length}</span>
-      </div>
-
-      {/* Phone Frame */}
-      <div style={{ width: 390, height: 844, borderRadius: 44, background: theme.bg, border: `3px solid #444`, overflow: "hidden", display: "flex", flexDirection: "column", position: "relative", boxShadow: "0 20px 60px rgba(0,0,0,0.6)" }}>
-        <StatusBar />
-        <GeminiHeader showBack={!isWelcome} />
-        {isWelcome && <NavTabs />}
-
-        {/* Scrollable Content */}
-        <div ref={scrollAreaRef} style={{ flex: 1, overflowY: "auto", overflowX: "hidden" }}>
-          {isWelcome ? (
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", padding: 20 }}>
-              <div style={{ fontSize: 24, color: theme.white, fontWeight: 300, textAlign: "center", lineHeight: 1.4 }}>Hi Macie. What do you have in mind?</div>
-              <div style={{ marginTop: 40, width: "100%" }}><SuggestionChips /></div>
-            </div>
-          ) : (
-            <div style={{ padding: "8px 0 16px" }}>
-              {messages.map((msg, idx) => {
-                if (msg.type === "user") {
-                  return <UserBubble key={idx} text={msg.text} />;
-                }
-                if (msg.type === "thinking") {
-                  return <ThinkingIndicator key={idx} />;
-                }
-                if (msg.type === "ai") {
-                  return (
-                    <div key={idx} style={{ padding: "8px 16px" }}>
-                      {msg.done ? (
-                        msg.content.map((b, bi) => {
-                          switch (b.type) {
-                            case "heading": return <div key={bi} style={{ fontSize: 16, fontWeight: 700, color: theme.white, margin: "16px 0 8px" }}>{renderBold(b.text)}</div>;
-                            case "paragraph": return <div key={bi} style={{ fontSize: 14.5, color: theme.aiText, lineHeight: 1.6, margin: "6px 0" }}>{renderBold(b.text)}</div>;
-                            case "bullet": return <div key={bi} style={{ fontSize: 14.5, color: theme.aiText, lineHeight: 1.6, margin: "4px 0", paddingLeft: 12 }}>• {renderBold(b.text)}</div>;
-                            case "product-card": return <ProductCard key={bi} {...b} />;
-                            case "table": return <ComparisonTable key={bi} headers={b.headers} rows={b.rows} />;
-                            default: return null;
-                          }
-                        })
-                      ) : (
-                        <TypewriterContent content={msg.content} onDone={() => setAiDone(true)} />
-                      )}
-                    </div>
-                  );
-                }
-                return null;
-              })}
-            </div>
-          )}
-        </div>
-
-        {/* Input Bar */}
-        {screen.type === "user-sends" && !showUserMsg ? (
-          <InputBar value={screen.userMessage} onSend={() => setShowUserMsg(true)} />
-        ) : (
-          <InputBar value="" />
-        )}
-
-        {/* Home indicator */}
-        <div style={{ display: "flex", justifyContent: "center", paddingBottom: 8 }}>
-          <div style={{ width: 134, height: 5, borderRadius: 3, background: theme.dimText }} />
-        </div>
-      </div>
-    </div>
-  );
+  // Update stored html for this message
+  messageHistory[idx].html = `<div class="ai-block">${buildAllBlocksHtml(blocks)}</div>`;
+  animating = false;
+  setNextEnabled(current < SCREENS.length - 1);
+  if (autoPlay) setTimeout(() => advance(), 2000);
 }
+
+// ============================================================
+// SCREEN HANDLERS
+// ============================================================
+async function showScreen(idx) {
+  current = idx;
+  updateCounter();
+  const s = SCREENS[idx];
+
+  if (s.type === 'welcome') {
+    renderHeader(false);
+    renderNavTabs(true);
+    renderWelcome();
+    renderInputEmpty();
+    setNextEnabled(true);
+    return;
+  }
+
+  renderHeader(true);
+  renderNavTabs(false);
+
+  if (s.type === 'user-sends') {
+    renderInputWithText(s.userMessage);
+    setNextEnabled(false);
+    // Auto-send after brief pause in autoplay
+    if (autoPlay) { await sleep(1200); sendUserMessage(); }
+    return;
+  }
+
+  if (s.type === 'thinking') {
+    renderInputEmpty();
+    setNextEnabled(false);
+    messageHistory.push({ type:'thinking', html:'<div class="thinking"><div class="dot"></div><span id="thinkText">Thinking</span></div>' });
+    renderMessages();
+
+    let dots = 0;
+    thinkingDotsTimer = setInterval(() => {
+      dots = (dots + 1) % 4;
+      const el = document.getElementById('thinkText');
+      if (el) el.textContent = 'Thinking' + '.'.repeat(dots);
+    }, 400);
+
+    await sleep(2500);
+    clearInterval(thinkingDotsTimer);
+
+    // Remove thinking message
+    messageHistory.pop();
+    renderMessages();
+    setNextEnabled(true);
+    if (autoPlay) setTimeout(() => advance(), 300);
+    return;
+  }
+
+  if (s.type === 'ai-response') {
+    renderInputEmpty();
+    await typewriteAiResponse(s.content);
+    return;
+  }
+}
+
+// ============================================================
+// ACTIONS
+// ============================================================
+function sendUserMessage() {
+  const s = SCREENS[current];
+  if (s.type !== 'user-sends') return;
+  messageHistory.push({ type:'user', html:`<div class="user-bubble-wrap"><div class="user-bubble">${s.userMessage}</div></div>` });
+  renderInputEmpty();
+  renderMessages();
+  setNextEnabled(true);
+  if (autoPlay) setTimeout(() => advance(), 1000);
+}
+
+function advance() {
+  if (animating || current >= SCREENS.length - 1) return;
+  showScreen(current + 1);
+}
+
+function resetDemo() {
+  clearInterval(typingTimer);
+  clearInterval(thinkingDotsTimer);
+  autoPlay = false;
+  animating = false;
+  messageHistory.length = 0;
+  $('autoBtn').textContent = '▶ Auto Play';
+  $('autoBtn').classList.remove('primary');
+  showScreen(0);
+}
+
+function toggleAutoPlay() {
+  autoPlay = !autoPlay;
+  $('autoBtn').textContent = autoPlay ? '⏸ Pause' : '▶ Auto Play';
+  $('autoBtn').classList.toggle('primary', autoPlay);
+  if (autoPlay && !animating) advance();
+}
+
+// ============================================================
+// INIT
+// ============================================================
+showScreen(0);
+</script>
+</body>
+</html>

@@ -17,7 +17,7 @@ body{font-family:'Google Sans','Google Sans Text',-apple-system,BlinkMacSystemFo
 .controls button.primary{background:#1a73e8;color:#fff;border-color:#1a73e8}
 .controls button:disabled{opacity:.35;cursor:default}
 .controls .counter{font-size:12px;color:#70757a;min-width:50px;text-align:center}
-.phone{width:393px;height:852px;border-radius:47px;background:var(--bg);border:3px solid #1f1f1f;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 25px 80px rgba(0,0,0,.25)}
+.phone{width:393px;height:852px;border-radius:47px;background:var(--bg);border:3px solid #1f1f1f;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 25px 80px rgba(0,0,0,.25);position:relative}
 .status-bar{display:flex;justify-content:space-between;align-items:center;padding:12px 28px 6px;font-size:16px;font-weight:600;color:var(--text);flex-shrink:0}
 .status-icons{display:flex;gap:5px;align-items:center}
 .g-header{display:flex;align-items:center;justify-content:space-between;padding:6px 16px 10px;flex-shrink:0}
@@ -44,11 +44,9 @@ body{font-family:'Google Sans','Google Sans Text',-apple-system,BlinkMacSystemFo
 .input-bottom-row{display:flex;align-items:center;justify-content:space-between;padding:10px 4px 2px}
 .input-add-btn{width:34px;height:34px;border-radius:50%;border:1.5px solid var(--border);background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer}
 .input-right-icons{display:flex;gap:16px;align-items:center}
-.input-right-icons svg{display:block}
 .send-btn{width:38px;height:38px;border-radius:50%;background:#1a73e8;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
 .send-btn:hover{background:#1557b0}
 .send-btn.disabled{background:#d3e3fd;cursor:default;pointer-events:none}
-.send-btn svg{display:block}
 .home-ind{display:flex;justify-content:center;padding:8px 0 10px;flex-shrink:0}
 .home-ind div{width:134px;height:5px;border-radius:3px;background:#1f1f1f}
 .messages{padding:4px 0 12px}
@@ -73,20 +71,120 @@ body{font-family:'Google Sans','Google Sans Text',-apple-system,BlinkMacSystemFo
 .ctable td{padding:10px 8px;color:var(--text2);border-bottom:1px solid #f0f0f0;vertical-align:top;line-height:1.4;font-size:12px;word-wrap:break-word;overflow-wrap:break-word}
 .ctable tr:last-child td{border-bottom:none}
 .ctable td:first-child{color:var(--text3);font-weight:500}
-.ctable td b,.ctable td strong{color:var(--text);font-weight:600}
 .thinking-row{padding:16px 20px;display:flex;align-items:center;gap:6px;animation:fadeIn .3s}
 .thinking-dot{width:6px;height:6px;border-radius:50%;background:#1a73e8;animation:dotPulse 1.2s infinite}
 .thinking-dot:nth-child(2){animation-delay:.2s}
 .thinking-dot:nth-child(3){animation-delay:.4s}
 .thinking-label{font-size:16px;color:var(--text2);font-style:italic;margin-left:4px}
 .cursor{display:inline-block;width:2px;height:1em;background:#1a73e8;margin-left:1px;animation:blink .7s infinite;vertical-align:text-bottom}
-/* Empty input placeholder with blinking cursor */
-.input-placeholder-line{font-size:16px;color:var(--text3);display:flex;align-items:center;min-height:24px}
-.input-placeholder-line .typing-cursor{display:inline-block;width:2px;height:1.1em;background:var(--text3);animation:blink .6s infinite;vertical-align:text-bottom}
+
+/* === COMMERCE OVERLAY === */
+.overlay{position:absolute;top:0;left:0;right:0;bottom:0;z-index:100;display:flex;flex-direction:column;background:#fff;animation:slideUpFull .35s ease-out}
+.overlay .ov-status{display:flex;justify-content:space-between;align-items:center;padding:12px 28px 6px;font-size:16px;font-weight:600;color:var(--text);flex-shrink:0}
+
+/* Product detail */
+.pd-gallery{width:100%;height:240px;background:#f5f5f5;position:relative;display:flex;overflow:hidden}
+.pd-gallery .pd-img{width:280px;min-width:280px;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#e8e0f0,#d0d8f0);position:relative}
+.pd-gallery .pd-img-peek{width:80px;min-width:80px;height:100%;background:linear-gradient(135deg,#e0e4e8,#d5d8dc);display:flex;align-items:center;justify-content:center;opacity:.5}
+.pd-actions{position:absolute;top:12px;right:12px;display:flex;gap:8px}
+.pd-actions button{width:36px;height:36px;border-radius:50%;background:rgba(0,0,0,.45);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.pd-title{font-size:18px;font-weight:500;color:var(--text);line-height:1.35;padding:16px 20px 4px}
+.pd-rating{display:flex;align-items:center;gap:6px;padding:4px 20px 12px;font-size:14px;color:var(--text2)}
+.pd-stars{color:#f4b400;font-size:16px}
+.pd-variants{display:flex;gap:8px;padding:4px 20px 16px}
+.pd-variant{border:1.5px solid var(--border);border-radius:10px;padding:8px 12px;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text2);cursor:pointer;transition:all .15s;background:#fff}
+.pd-variant.active{border-color:var(--accent);background:#e8f0fe}
+.pd-variant .vthumb{width:28px;height:28px;border-radius:4px;background:#e8e8e8}
+.pd-divider{height:8px;background:#f1f3f4}
+.pd-seller{display:flex;align-items:center;justify-content:space-between;padding:16px 20px}
+.pd-hp-logo{width:36px;height:36px;border-radius:50%;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--accent)}
+.pd-price{font-size:22px;font-weight:600;color:var(--text)}
+.pd-price-sub{font-size:12px;color:var(--text3);font-weight:400}
+.pd-row{display:flex;justify-content:space-between;padding:4px 20px;font-size:14px;color:var(--text2)}
+.pd-row .label{color:var(--text3)}
+.pd-total{display:flex;justify-content:space-between;padding:10px 20px;font-size:16px;font-weight:600;color:var(--text)}
+.pd-buttons{display:flex;gap:10px;padding:12px 20px}
+.pd-buttons button{padding:8px 20px;border-radius:20px;font-size:14px;font-family:inherit;font-weight:500;cursor:pointer;transition:all .15s}
+.btn-buy{background:var(--bg);border:1.5px solid var(--accent);color:var(--accent)}
+.btn-buy:hover{background:#e8f0fe}
+.btn-visit{background:var(--bg);border:1.5px solid var(--border);color:var(--text2)}
+
+/* Checkout */
+.co-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px 8px}
+.co-header .co-logo{width:36px;height:36px}
+.co-close{width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;background:transparent}
+.co-title{font-size:20px;font-weight:600;color:var(--text);padding:4px 20px 16px}
+.co-item{display:flex;gap:12px;padding:12px 20px;align-items:center}
+.co-item-img{width:56px;height:56px;border-radius:8px;background:#f1f3f4;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.co-item-info{flex:1}
+.co-item-name{font-size:14px;color:var(--text);font-weight:500;line-height:1.35}
+.co-item-price{font-size:14px;color:var(--text);font-weight:600;margin-top:2px}
+.co-item-return{font-size:12px;color:var(--text3);margin-top:2px}
+.co-section{border:1px solid var(--border);border-radius:12px;margin:8px 20px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer}
+.co-section-left{display:flex;align-items:center;gap:12px}
+.co-section-icon{width:24px;height:24px;display:flex;align-items:center;justify-content:center;color:var(--text3)}
+.co-section-label{font-size:14px;font-weight:500;color:var(--text)}
+.co-section-sub{font-size:12px;color:var(--text3)}
+.co-chevron{color:var(--text3)}
+.co-total{display:flex;justify-content:space-between;padding:16px 20px;font-size:16px}
+.co-total .t-label{color:var(--text3);font-weight:500}
+.co-total .t-amount{font-weight:700;color:var(--text);font-size:18px}
+.co-pay-btn{margin:8px 20px;padding:14px;border-radius:28px;background:#1f1f1f;color:#fff;font-size:16px;font-weight:500;text-align:center;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;border:none;width:calc(100% - 40px);font-family:inherit}
+.co-pay-btn:hover{background:#333}
+.co-disclaimer{font-size:11px;color:var(--text3);padding:12px 20px;line-height:1.5;text-align:center}
+/* Shipping expanded */
+.co-ship-opts{padding:4px 0 4px 52px}
+.co-ship-opt{display:flex;align-items:center;gap:10px;padding:8px 0;font-size:14px;color:var(--text)}
+.co-ship-opt .radio{width:18px;height:18px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center}
+.co-ship-opt .radio.active{border-color:var(--text)}
+.co-ship-opt .radio.active::after{content:'';width:10px;height:10px;border-radius:50%;background:var(--text)}
+.co-ship-opt .ship-price{margin-left:auto;font-size:13px;color:var(--text2);padding-right:20px}
+
+/* Order confirmation */
+.oc-header{display:flex;align-items:center;gap:10px;padding:20px 20px 8px}
+.oc-header .oc-logo{width:32px;height:32px}
+.oc-title{font-size:18px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:8px}
+.oc-check{width:22px;height:22px;border-radius:50%;background:#34a853;display:flex;align-items:center;justify-content:center}
+.oc-order-id{font-size:13px;color:var(--text3);padding:2px 20px}
+.oc-thanks{font-size:13px;color:var(--text2);padding:2px 20px 12px}
+.oc-section-title{font-size:15px;font-weight:600;color:var(--text);padding:12px 20px 8px}
+.oc-card{border:1px solid var(--border);border-radius:12px;margin:0 20px 12px;padding:14px 16px}
+.oc-summary-row{display:flex;justify-content:space-between;padding:4px 0;font-size:13px;color:var(--text2)}
+.oc-summary-total{display:flex;justify-content:space-between;padding:8px 0 4px;font-size:15px;font-weight:600;color:var(--text);border-top:1px solid var(--border);margin-top:8px}
+.oc-delivery{padding:4px 20px}
+.oc-delivery-row{display:flex;align-items:flex-start;gap:10px;padding:6px 0;font-size:14px;color:var(--text2)}
+.oc-delivery-row .oc-icon{width:20px;height:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--text3);margin-top:2px}
+.oc-track-btn{display:inline-block;margin:12px 20px;padding:8px 20px;border-radius:20px;border:1.5px solid var(--accent);color:var(--accent);font-size:14px;font-weight:500;cursor:pointer;background:#fff;font-family:inherit}
+
+/* Tracking */
+.tk-header{display:flex;align-items:center;gap:10px;padding:20px 20px 12px}
+.tk-order-id{font-size:16px;font-weight:600;color:var(--text)}
+.tk-timeline{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;position:relative}
+.tk-step{display:flex;flex-direction:column;align-items:center;gap:4px;z-index:1}
+.tk-dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--border);background:#fff}
+.tk-dot.done{background:var(--text);border-color:var(--text)}
+.tk-dot.current{background:var(--text);border-color:var(--text);box-shadow:0 0 0 3px rgba(0,0,0,.1)}
+.tk-label{font-size:10px;color:var(--text3);text-align:center}
+.tk-date{font-size:9px;color:var(--text3)}
+.tk-line{position:absolute;top:26px;left:40px;right:40px;height:2px;background:var(--border);z-index:0}
+.tk-line-fill{height:100%;background:var(--text);width:60%}
+.tk-shipping{border:1px solid var(--border);border-radius:12px;margin:12px 20px;padding:14px 16px}
+.tk-shipping-title{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:500;color:var(--text);margin-bottom:4px}
+.tk-shipping-addr{font-size:13px;color:var(--text2)}
+.tk-buttons{display:flex;gap:10px;padding:12px 0 0}
+.tk-buttons button{padding:8px 16px;border-radius:20px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit}
+.tk-btn-primary{background:#fff;border:1.5px solid var(--accent);color:var(--accent)}
+.tk-btn-secondary{background:#fff;border:1.5px solid var(--accent);color:var(--accent)}
+.tk-sign-in{padding:16px 20px;border-top:1px solid var(--border);margin-top:16px}
+.tk-sign-in h3{font-size:15px;font-weight:600;color:var(--text);margin-bottom:6px}
+.tk-sign-in p{font-size:13px;color:var(--text2);line-height:1.5;margin-bottom:12px}
+.tk-sign-in button{padding:8px 20px;border-radius:20px;border:1.5px solid var(--accent);color:var(--accent);background:#fff;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit}
+
 @keyframes dotPulse{0%,80%,100%{opacity:.3;transform:scale(.8)}40%{opacity:1;transform:scale(1.1)}}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 @keyframes slideUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideUpFull{from{transform:translateY(100%)}to{transform:translateY(0)}}
 @media(max-width:440px){body{padding:0;background:#fff}.phone{width:100vw;height:100vh;height:100dvh;border-radius:0;border:none;box-shadow:none}.controls{display:none}}
 </style>
 </head>
@@ -96,7 +194,7 @@ body{font-family:'Google Sans','Google Sans Text',-apple-system,BlinkMacSystemFo
   <button id="autoBtn" onclick="toggleAutoPlay()">▶ Auto Play</button>
   <span class="counter" id="counter"></span>
 </div>
-<div class="phone">
+<div class="phone" id="phone">
   <div class="status-bar"><span>9:41</span><div class="status-icons">
     <svg width="17" height="12" viewBox="0 0 17 12" fill="#1f1f1f"><rect x="0" y="8" width="3" height="4" rx=".5"/><rect x="4.5" y="5" width="3" height="7" rx=".5"/><rect x="9" y="2" width="3" height="10" rx=".5"/><rect x="13.5" y="0" width="3" height="12" rx=".5"/></svg>
     <svg width="16" height="12" viewBox="0 0 16 12" fill="#1f1f1f"><path d="M8 3.6C9.8 3.6 11.4 4.3 12.6 5.4L14 4C12.4 2.5 10.3 1.5 8 1.5S3.6 2.5 2 4L3.4 5.4C4.6 4.3 6.2 3.6 8 3.6ZM8 7.2C9 7.2 9.9 7.6 10.6 8.2L12 6.8C10.9 5.8 9.5 5.1 8 5.1S5.1 5.8 4 6.8L5.4 8.2C6.1 7.6 7 7.2 8 7.2Z"/><circle cx="8" cy="10.5" r="1.5"/></svg>
@@ -117,121 +215,98 @@ const CONV=[
   {role:"ai",blocks:[
     {t:"p",text:"To handle architectural scaling, you need a machine that balances <b>single-core clock speed</b> for BIM modeling (Revit/ArchiCAD) with <b>multi-core/GPU power</b> for 3D rendering (V-Ray/Lumion)."},
     {t:"h",text:"Professional Workstation Options"},
-    {t:"p",text:"These models are designed specifically for AEC (Architecture, Engineering, and Construction) workflows, featuring <b>ISV certifications</b> that guarantee software stability."},
-    {t:"p",text:"The <b>Dell Pro 16 Plus</b> is a versatile choice for a growing practice. It offers a <b>16-inch display</b> powered by an <b>Intel Core Ultra processor</b> with a built-in <b>AI Boost NPU</b>. It is rated for <b>up to 12.6 hours of runtime</b>."},
+    {t:"p",text:"These models are designed specifically for AEC workflows, featuring <b>ISV certifications</b> that guarantee software stability."},
+    {t:"p",text:"The <b>Dell Pro 16 Plus</b> offers a <b>16-inch display</b> powered by an <b>Intel Core Ultra processor</b> with <b>AI Boost NPU</b>. Rated for <b>up to 12.6 hours of runtime</b>."},
     {t:"card",name:"Dell Pro 16 Plus",price:"$1,449.00",brand:"Dell",rating:"4.1",reviews:"97k+"},
-    {t:"p",text:"For those who prioritize mobility without sacrificing professional-grade graphics, the <b>HP ZBook 8 G1i</b> is a newly redesigned <b>16-inch mobile workstation</b>. It features <b>pro-level graphics</b> tailored for advanced AI and 3D workflows."},
+    {t:"p",text:"The <b>HP ZBook 8 G1i</b> is a newly redesigned <b>16-inch mobile workstation</b> with <b>pro-level graphics</b> for advanced AI and 3D workflows."},
     {t:"card",name:"HP ZBook 8 G1i 16\" Mobile Workstation Intel Core Ultra 7",price:"$1,699.00",brand:"HP",rating:"4.9",reviews:"41"},
-    {t:"h",text:"Highly Portable Alternatives"},
-    {t:"p",text:"The <b>Asus ProArt PX13</b> is a <b>13.3-inch convertible</b> with a <b>3K OLED touchscreen</b> and <b>Asus DialPad</b>. It packs an <b>RTX 4050 GPU</b> and <b>32GB of RAM</b>."},
     {t:"h",text:"Summary Recommendation"},
-    {t:"li",text:"<b>For best BIM performance:</b> Choose the <b>HP ZBook 8 G1i</b>; its 32GB RAM and Intel Ultra processor provide stability for large Revit files."},
-    {t:"li",text:"<b>For pure portability:</b> The <b>Asus Zenbook S 16</b> is the lightest 16-inch option."},
-    {t:"table",headers:["","HP ZBook 8 G1i ⭐","Dell Precision 16","Zenbook S 16"],rows:[["Best For","Mobile workstation power","Raw performance","Max portability"],["BIM","🎯 ISV-certified","Excellent 32GB","⚠️ Inadequate"],["Battery","Up to 15 hrs","Limited under load","Excellent"],["Price","$1,500–4,000+","$2,000–3,500","$1,200–1,800"]]}
+    {t:"li",text:"<b>For best BIM performance:</b> Choose the <b>HP ZBook 8 G1i</b>."},
+    {t:"li",text:"<b>For pure portability:</b> The <b>Asus Zenbook S 16</b>."},
+    {t:"table",headers:["","HP ZBook 8 G1i ⭐","Dell Precision 16","Zenbook S 16"],rows:[["Best For","Mobile workstation","Raw performance","Max portability"],["BIM","🎯 ISV-certified","Excellent 32GB","⚠️ Inadequate"],["Battery","Up to 15 hrs","Limited","Excellent"],["Price","$1,500–4,000+","$2,000–3,500","$1,200–1,800"]]}
   ]},
   {role:"user",msg:"I really like the HP option as I don't want to compromise on the performance element, also I have some 4k HD True colour monitors from HP, and I'm impressed."},
   {role:"ai",blocks:[
-    {t:"p",text:"If you are leaning toward <b>HP</b>, you're looking at their <b>ZBook</b> series—the gold standard for architectural workstations. To get the performance you need for BIM (Revit/ArchiCAD) and 3D rendering (V-Ray/Lumion) without needing a charger by lunchtime, you should look specifically at the <b>G11</b> (2025/2026) models."},
-    {t:"p",text:"The G11 series uses <b>Intel Core Ultra</b> or <b>AMD Ryzen Pro</b> processors, which include a dedicated AI engine (NPU) that helps manage power more efficiently than previous generations."},
+    {t:"p",text:"If you are leaning toward <b>HP</b>, you're looking at their <b>ZBook</b> series—the gold standard for architectural workstations. Look specifically at the <b>G11</b> (2025/2026) models."},
     {t:"h",text:"HP ZBook Comparison for Architects"},
-    {t:"table",headers:["","HP ZBook Power G11","HP ZBook Studio G11"],rows:[["Best For","Balanced Performance & BIM","High-End Rendering & Visuals"],["GPU Options","Up to RTX 3000 Ada (8GB)","Up to RTX 4070 or 3000 Ada"],["Battery Life","Up to 15+ hours (AMD)","Approx. 5–7 hours"],["Chassis","Standard Professional Shell","Ultra-Slim Premium Aluminum"],["Weight","Approx. 4.5 lbs","Approx. 3.8 lbs"]]},
-    {t:"sh",text:"Which one should you choose?"},
-    {t:"p",text:"The <b>HP ZBook Power G11</b> is the \"workhorse\" choice for a solo practice. It offers <b>dual SODIMM slots</b> (allowing you to easily upgrade to 64GB RAM later) and <b>dual SSD slots</b>. The <b>AMD version (G11 A)</b> has been tested to last nearly <b>16 hours</b> on a single charge."},
-    {t:"p",text:"The HP ZBook Studio G11 is for architects who do heavy <b>real-time rendering</b> (Lumion/Enscape). It features a superior <b>DreamColor display</b> with 100% DCI-P3 color accuracy. However, its slim design leads to more heat and <b>shorter battery life</b>."},
+    {t:"table",headers:["","ZBook Power G11","ZBook Studio G11"],rows:[["Best For","Balanced Performance & BIM","High-End Rendering"],["GPU","Up to RTX 3000 Ada","Up to RTX 4070"],["Battery","Up to 15+ hours","5–7 hours"],["Weight","~4.5 lbs","~3.8 lbs"]]},
     {t:"sh",text:"Recommendation"},
-    {t:"p",text:"For a solo architect scaling up, the <b>ZBook Power G11</b> is the smarter investment. It handles large BIM models easily, gives you the <b>all-day battery</b> you requested, and the saved cost can be put toward extra RAM or a high-quality external monitor."},
+    {t:"p",text:"For a solo architect scaling up, the <b>ZBook Power G11</b> is the smarter investment. It handles large BIM models easily and gives you the <b>all-day battery</b> you requested."},
     {t:"p",text:"Would you like me to check for the specific <b>NVIDIA RTX GPU</b> requirements for the rendering engine you use most?"}
   ]},
   {role:"user",msg:"No, thanks I have already seen that it does. For approximately the same price and I have seen that the HP Zbook 8G1 16\" for $1499 on sale, can you tell me how this stack against a mac or the best fit from Dell?"},
   {role:"ai",blocks:[
-    {t:"p",text:"When scaling your architecture practice, choosing between the <b>HP ZBook 8 G1i</b>, a <b>MacBook Pro</b>, and a <b>Dell Precision</b> (or Dell Pro Max) comes down to how your specific software handles different operating systems and hardware."},
-    {t:"p",text:"At the <b>$1,500 sale price</b>, the HP ZBook 8 G1i is a professional workstation \"steal,\" but here is how it stacks up against the competition for 2026."},
+    {t:"p",text:"At the <b>$1,500 sale price</b>, the HP ZBook 8 G1i is a professional workstation \"steal.\" Here is how it stacks up:"},
     {t:"h",text:"Architecture Performance Comparison"},
-    {t:"table",headers:["","HP ZBook 8 G1i (16-inch)","MacBook Pro 16 (M4 Pro)","Dell Pro Max 16 (Plus)"],rows:[["OS","Windows 11 Pro","macOS","Windows 11 Pro"],["BIM","Native (Best for Revit)","Emulated (requires Parallels)","Native"],["Battery Life","Up to 15 hours","Up to 22+ hours","Up to 12–14 hours"],["Best For","Heavy BIM & Client Meetings","Creative visuals & Adobe","All-around office & site"],["Best Price","$1,499","$1,899","$1,699"]]},
-    {t:"sh",text:"Why the HP ZBook 8 G1i is hard to beat at $1,499"},
-    {t:"p",text:"The <b>HP ZBook 8 G1i</b> is specifically designed for your industry. Its <b>NVIDIA RTX 500 Ada GPU</b> is <b>ISV-certified</b>, meaning it has special drivers to prevent Revit and AutoCAD from crashing during complex 3D rotations."},
-    {t:"li",text:"<b>Longevity:</b> It features <b>two SODIMM slots</b>, meaning you can start with 16GB or 32GB and easily pop in 64GB yourself later as your projects grow."},
-    {t:"li",text:"<b>The \"Meeting\" Factor:</b> At 16 inches, it offers the screen real estate needed to show blueprints to clients without them squinting, yet it remains relatively light (under 4 lbs)."},
+    {t:"table",headers:["","HP ZBook 8 G1i","MacBook Pro 16","Dell Pro Max 16"],rows:[["OS","Windows 11 Pro","macOS","Windows 11 Pro"],["BIM","Native (Revit)","Emulated (Parallels)","Native"],["Battery","Up to 15 hours","Up to 22+ hours","Up to 12–14 hours"],["Price","$1,499","$1,899","$1,699"]]},
+    {t:"sh",text:"Why the ZBook is hard to beat at $1,499"},
+    {t:"p",text:"Its <b>NVIDIA RTX 500 Ada GPU</b> is <b>ISV-certified</b>. It features <b>two SODIMM slots</b> for upgradeable RAM."},
     {t:"card",name:"HP ZBook 8 G1i 16\" Mobile Workstation Intel Core Ultra 7",price:"$1,499.00",brand:"HP",rating:"4.9",reviews:"41"},
-    {t:"h",text:"The Mac and Dell Alternatives"},
-    {t:"li",text:"<b>MacBook Pro 16 (M4 Pro):</b> This is the battery king. However, <b>Revit does not run natively on Mac</b>. You would need <b>Parallels</b>, which can cut performance by 20–30%. For a solo architect, this extra tech troubleshooting is often a headache you don't need."},
-    {t:"li",text:"<b>Dell Pro Max 16 Plus:</b> The direct competitor. While beautifully designed, you often pay a \"design tax.\" To get the same 32GB RAM and 1TB SSD, the Dell typically lands closer to <b>$1,700–$1,900</b> unless you find a rare clearance deal."},
     {t:"h",text:"Final Verdict"},
-    {t:"p",text:"If you can get the <b>HP ZBook 8 G1i</b> for <b>$1,499</b>, take it. It is the most \"future-proof\" option because of its upgradeable RAM and native support for architectural software. You won't find a MacBook or Dell Precision with comparable professional specs at that price point."},
-    {t:"p",text:"Would you like me to find a specific <b>ZBook G1i configuration</b> currently in stock at that price to see if it has the 32GB RAM you'll need?"}
+    {t:"p",text:"If you can get the <b>HP ZBook 8 G1i</b> for <b>$1,499</b>, take it. It is the most \"future-proof\" option."}
   ]},
   {role:"user",msg:"Yes please, please show me the options that they have."},
   {role:"ai",blocks:[
-    {t:"p",text:"The <b>HP ZBook 8 G1i</b> is the 2026 evolution of the Power series. It is built for <b>BIM software</b> that requires \"Certified Drivers\"—drivers specifically tested to ensure your 3D models don't glitch or crash during a client presentation."},
-    {t:"li",text:"<b>Performance:</b> It uses the Intel Core Ultra 7 255H, which includes a dedicated NPU (AI engine). This handles background tasks more efficiently, leaving the main processor free for heavy rendering."},
-    {t:"li",text:"<b>Expansion:</b> Unlike the MacBook, if you find that 32GB of RAM isn't enough for a massive project next year, you can upgrade it yourself for about $150 rather than buying a whole new laptop."},
-    {t:"li",text:"<b>Battery:</b> It features a 77Wh battery that supports Fast Charge, reaching 50% in just 30 minutes—perfect for a quick top-off between site visits."},
-    {t:"li",text:"<b>VS Dell Precision:</b> The Dell Precision 3591 is a fantastic machine but often uses a slightly thicker, heavier chassis. At the $1,500 mark, you are more likely to find the ZBook with a 1TB SSD, whereas Dell often starts at 512GB."},
-    {t:"li",text:"<b>VS MacBook Pro:</b> While the MacBook has the best battery life in the world, Revit does not run natively on Mac. You would have to use Parallels, which can be unstable for high-stakes 3D rendering and adds an extra monthly subscription cost."},
+    {t:"p",text:"The <b>HP ZBook 8 G1i</b> is built for <b>BIM software</b> with \"Certified Drivers.\""},
+    {t:"li",text:"<b>Performance:</b> Intel Core Ultra 7 255H with dedicated NPU."},
+    {t:"li",text:"<b>Expansion:</b> Upgrade RAM yourself for ~$150."},
+    {t:"li",text:"<b>Battery:</b> 77Wh with Fast Charge—50% in 30 minutes."},
     {t:"h",text:"Final Recommendation"},
-    {t:"p",text:"For a solo architecture practice, the <b>HP ZBook 8 G1i</b> is the most practical choice. It offers the professional <b>NVIDIA RTX graphics</b> needed for 3D work and the Windows-native environment required for industry-standard BIM software, all while staying within your budget."},
-    {t:"p",text:"Would you like me to look for a specific configuration of this ZBook that includes <b>32GB of RAM</b> to ensure it's ready for your larger projects immediately?"}
+    {t:"p",text:"The <b>HP ZBook 8 G1i</b> offers professional <b>NVIDIA RTX graphics</b> and Windows-native BIM support within your budget."}
   ]},
   {role:"user",msg:"Can you list all the ports that the ZBook has? As I'm worried that it might not have an HDMI port and my monitors and all client have HDMI connections."},
   {role:"ai",blocks:[
-    {t:"p",text:"It's a valid concern—many modern \"thin\" laptops have ditched the HDMI port, forcing you to carry dongles. However, because the <b>ZBook</b> is a professional workstation, it is designed with connectivity in mind."},
-    {t:"p",text:"The HP ZBook 8 G1i <b><i>does</i> include a dedicated HDMI 2.1 port</b>, so you can plug directly into client monitors or projectors without any adapters."},
+    {t:"p",text:"The HP ZBook 8 G1i <b><i>does</i> include a dedicated HDMI 2.1 port</b>. No adapters needed."},
     {t:"h",text:"Port Layout and Connectivity"},
-    {t:"p",text:"The ZBook features a \"full-stack\" port selection, meaning you can connect your mouse, external drive, and monitor simultaneously."},
-    {t:"li",text:"<b>1 HDMI 2.1 Port:</b> Supports high-resolution output (up to 4K or 8K) for modern displays and TVs."},
-    {t:"li",text:"<b>2 Thunderbolt 4 / USB4 Type-C Ports:</b> These are \"do-it-all\" ports supporting <b>Power Delivery</b>, <b>DisplayPort 1.4</b>, and 40Gbps data transfer."},
-    {t:"li",text:"<b>2 USB Type-A Ports (5Gbps):</b> One is a \"Charging\" port, allowing you to charge your phone even when the laptop is asleep."},
-    {t:"li",text:"<b>1 Headphone/Microphone Combo Jack:</b> Standard 3.5mm input for headsets."},
-    {t:"li",text:"<b>1 Nano Security Lock Slot:</b> Useful for tethering your laptop to a desk at a site office for security."},
+    {t:"li",text:"<b>1 HDMI 2.1 Port:</b> Up to 4K/8K output."},
+    {t:"li",text:"<b>2 Thunderbolt 4 / USB4 Type-C:</b> Power Delivery, DisplayPort 1.4, 40Gbps."},
+    {t:"li",text:"<b>2 USB Type-A (5Gbps):</b> One charges your phone when laptop is asleep."},
+    {t:"li",text:"<b>1 Headphone/Mic Combo Jack</b>"},
+    {t:"li",text:"<b>1 Nano Security Lock Slot</b>"},
     {t:"h",text:"External Monitor Strategy"},
-    {t:"p",text:"Since you mentioned having multiple monitors, here is how you can set them up:"},
-    {t:"num",text:"<b>Monitor 1:</b> Plug directly into the <b>HDMI 2.1 port</b>."},
-    {t:"num2",text:"<b>Monitor 2:</b> Use one of the <b>Thunderbolt 4</b> ports with a simple USB-C to HDMI cable or a docking station."},
-    {t:"p",text:"The HDMI 2.1 standard supports higher refresh rates and better color depth compared to the older HDMI 1.4 ports found on budget laptops."},
-    {t:"p",text:"Would you like me to find a <b>Thunderbolt docking station</b> that would allow you to connect all your office monitors and peripherals with just a single cable?"}
+    {t:"num",text:"<b>Monitor 1:</b> HDMI 2.1 port directly."},
+    {t:"num2",text:"<b>Monitor 2:</b> Thunderbolt 4 with USB-C to HDMI cable."},
+    {t:"p",text:"Would you like me to find a <b>Thunderbolt docking station</b>?"}
   ]},
   {role:"user",msg:"Before we go down the accessory route, my friend tells me to check out the HP elitebook range, as they have one and cant recomend highly enough - would it work for me?"},
   {role:"ai",blocks:[
-    {t:"p",text:"While the <b>HP EliteBook</b> is a fantastic premium business laptop, it is generally <b>not recommended</b> for a solo architecture practice scaling into heavy 3D rendering and BIM."},
-    {t:"p",text:"The core difference is that EliteBooks are \"productivity\" machines built for executives (Office, Zoom, multi-tasking), whereas ZBooks are \"workstations\" built for creators (Revit, V-Ray, Lumion)."},
+    {t:"p",text:"The <b>HP EliteBook</b> is generally <b>not recommended</b> for heavy 3D rendering and BIM."},
+    {t:"p",text:"EliteBooks are \"productivity\" machines for executives. ZBooks are \"workstations\" for creators."},
     {t:"h",text:"HP EliteBook vs. HP ZBook for Architects"},
-    {t:"table",headers:["","HP EliteBook 860 G11","HP ZBook 8 G1i (16\")"],rows:[["GPU","Integrated Intel Graphics","NVIDIA RTX 500 Ada (Dedicated)"],["BIM Stability","Risk of crashes in complex models","High (Certified for Revit/CAD)"],["Thermal System","Thin (Quiet but prone to heat)","Workstation Cooling (Sustained load)"],["ISV Certification","None","Yes (Autodesk, Adobe, etc.)"],["Best For","Project Management & Admin","3D Modeling & Rendering"]]}
+    {t:"table",headers:["","EliteBook 860 G11","ZBook 8 G1i (16\")"],rows:[["GPU","Integrated Intel","NVIDIA RTX 500 Ada"],["BIM Stability","Risk of crashes","High (Certified)"],["Thermal","Thin, prone to heat","Workstation Cooling"],["ISV Cert.","None","Yes (Autodesk, Adobe)"],["Best For","PM & Admin","3D Modeling & Rendering"]]}
   ]},
   {role:"user",msg:"Great, thanks for the help, let's go and checkout that accessory now."},
   {role:"ai",blocks:[
     {t:"p",text:"Good choice,"},
     {t:"h",text:"Recommended Configuration & Add-on"},
-    {t:"p",text:"The <b>HP ZBook 8 G1i</b> is the best fit for your \"scaling up\" phase because it combines workstation-grade power with a battery that can actually last through a day of client meetings."},
-    {t:"p",text:"To simplify your office setup, the HP Thunderbolt G4 Dock is the gold-standard pairing. It allows you to connect two 4K monitors, your keyboard, and a mouse via <b>one single cable</b> that also charges the laptop. It adds another <b>HDMI port</b> and <b>two DisplayPorts</b>, effectively turning your laptop into a full desktop workstation the moment you sit down."},
+    {t:"p",text:"The <b>HP ZBook 8 G1i</b> combines workstation-grade power with all-day battery."},
+    {t:"p",text:"The HP Thunderbolt G4 Dock lets you connect two 4K monitors, keyboard, and mouse via <b>one single cable</b>. It adds an <b>HDMI port</b> and <b>two DisplayPorts</b>."},
     {t:"sh",text:"Summary Recommendation"},
-    {t:"li",text:"<b>Buy the ZBook 8 G1i:</b> It has the HDMI port you need, the 32GB RAM your software demands, and is currently at a rare price point for its specs."},
-    {t:"li",text:"<b>Consider the G4 Dock:</b> It will save you from plugging in five different cables every time you return from a client meeting."}
+    {t:"li",text:"<b>Buy the ZBook 8 G1i:</b> HDMI port, 32GB RAM, rare price point."},
+    {t:"li",text:"<b>Consider the G4 Dock:</b> One cable for everything."}
   ]},
   {role:"user",msg:"Can you tell me if there any offers on the g4 Dock?"},
   {role:"ai",blocks:[
-    {t:"p",text:"Yes, there are several active offers for the <b>HP Thunderbolt G4 Dock</b> right now. Since you are scaling your practice, these deals can help you set up a professional dual-monitor workstation while staying under budget."},
+    {t:"p",text:"Yes, several active offers for the <b>HP Thunderbolt G4 Dock</b>."},
     {t:"sh",text:"Current Offers & Deals (February 2026)"},
-    {t:"p",text:"You can find the G4 Dock at a significant discount depending on whether you buy it new, open-box, or as part of a bundle."},
-    {t:"li",text:"<b>HP Store \"Docks & Hubs\" Sale:</b> The official HP Store is running a promotion with up to <b>42% off</b> select docks and hubs."},
-    {t:"li",text:"<b>Open-Box & Refurbished (Best Value):</b> On sites like eBay, you can find \"Open Box\" units of the <b>120W G4 Dock</b> for as low as <b>$69.99 to $99.99</b>."},
-    {t:"li",text:"<b>Business & Student Discounts:</b> You can often unlock an additional <b>25% to 30% off</b> accessories when purchased alongside a PC like your ZBook."},
-    {t:"sh",text:"Recommended G4 Dock Options"},
-    {t:"p",text:"There are two main versions. For your ZBook 8 G1i, the 120W is typically sufficient, but the 280W version is better if you plan on adding multiple high-power peripherals later."},
-    {t:"table",headers:["Feature","HP TB Dock 120W G4","HP TB Dock 280W G4"],rows:[["Best For","Standard 4K Dual Monitor","High-Power Workstations & 4+ Displays"],["Power Delivery","100W to Laptop","Up to 230W (w/ Combo Cable)"],["Ports","1 HDMI 2.0, 2 DP 1.4, 1 TB4","1 HDMI 2.0, 2 DP 1.4, 1 TB4"],["Current Deal","~ $160–$189 (New)","~ $220–$280 (New)"]]},
-    {t:"sh",text:"Pro Tip for Your Setup"},
-    {t:"p",text:"If you buy the dock, check the HP Store Rewards program. You can often get 3% back in rewards points, which you can use later for a professional mouse or a laptop bag for site visits."}
+    {t:"li",text:"<b>HP Store Sale:</b> Up to <b>42% off</b> select docks and hubs."},
+    {t:"li",text:"<b>Open-Box (Best Value):</b> 120W G4 Dock from <b>$69.99 to $99.99</b> on eBay."},
+    {t:"li",text:"<b>Business Discounts:</b> Additional <b>25–30% off</b> with a PC purchase."},
+    {t:"table",headers:["Feature","TB Dock 120W G4","TB Dock 280W G4"],rows:[["Best For","Standard 4K Dual","High-Power 4+ Displays"],["Power","100W to Laptop","Up to 230W"],["Deal","~$160–$189","~$220–$280"]]},
+    {t:"sh",text:"Pro Tip"},
+    {t:"p",text:"Check the HP Store Rewards program—3% back in rewards points."}
   ]},
   {role:"user",msg:"Which would be the better dock for me?"},
   {role:"ai",blocks:[
-    {t:"p",text:"For your architecture practice, the <b>HP Thunderbolt Dock 280W G4</b> is the superior choice over the 120W version."},
-    {t:"p",text:"While both docks offer identical port selections, the <b>280W model</b> is specifically designed for high-performance workstations like your ZBook. 3D rendering and BIM software are extremely power-intensive; the 280W dock ensures your laptop stays at <b>peak performance (PL1 power levels)</b> without the battery draining or the processor throttling during heavy renders."},
+    {t:"p",text:"The <b>HP Thunderbolt Dock 280W G4</b> is the superior choice. The 280W ensures <b>peak performance</b> without throttling during heavy renders."},
     {t:"h",text:"HP Thunderbolt G4 Dock Comparison"},
-    {t:"table",headers:["","TB Dock 120W G4","TB Dock 280W G4"],rows:[["Power Delivery","Up to 100W","Up to 230W"],["Best For","Standard laptops","Workstations (BIM/CAD/3D)"],["Display Support","Up to four 4K monitors","Up to four 4K monitors"],["Cable Type","Single Thunderbolt 4","Combo Cable (TB4 + Power Barrel)"]]},
-    {t:"sh",text:"Why the 280W version is \"The One\" for you"},
-    {t:"p",text:"The HP Thunderbolt Dock 280W G4 features a <b>combo cable</b> that delivers more than double the power of the 120W version. Without this extra overhead, your ZBook might actually lose battery charge while plugged into the 120W dock during a heavy V-Ray or Lumion render."},
-    {t:"li",text:"<b>No Performance Lag:</b> It provides the full wattage required to keep your NVIDIA RTX GPU running at its maximum frequency."},
-    {t:"li",text:"<b>Security:</b> Like your ZBook, it features HP Sure Start, protecting your office network from firmware-level attacks."},
-    {t:"li",text:"<b>Connectivity:</b> It includes the HDMI 2.0 port and two DisplayPorts you need to run your multiple-monitor office setup."}
+    {t:"table",headers:["","120W G4","280W G4"],rows:[["Power","Up to 100W","Up to 230W"],["Best For","Standard laptops","Workstations (BIM/3D)"],["Displays","Up to four 4K","Up to four 4K"],["Cable","Single TB4","Combo (TB4+Power)"]]},
+    {t:"sh",text:"Why the 280W is \"The One\""},
+    {t:"li",text:"<b>No Performance Lag:</b> Full wattage for your RTX GPU."},
+    {t:"li",text:"<b>Security:</b> HP Sure Start firmware protection."},
+    {t:"li",text:"<b>Connectivity:</b> HDMI 2.0 + two DisplayPorts."},
+    {t:"p",text:"Would you like me to add the ZBook and the 280W Dock to your cart?"},
+    {t:"commerce",text:"__COMMERCE_TRIGGER__"}
   ]}
 ];
 
@@ -239,17 +314,15 @@ const CONV=[
 // STATE
 // ================================================================
 let nextUserIdx=0,autoP=false,busy=false,timer=null,dotTimer=null,typingTimer=null;
-let inputState='blank'; // blank | typing | ready | disabled
+let inputState='blank';
+let commercePhase='none'; // none|product|checkout|shipping|confirm|tracking
+let selectedVariant='zbook'; // zbook|bundle280|bundle100
 const hist=[];
 const $=id=>document.getElementById(id);
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 function sBot(){const e=$('scrollArea');e.scrollTop=e.scrollHeight}
 function strip(h){const d=document.createElement('div');d.innerHTML=h;return d.textContent||''}
-function updC(){
-  const total=CONV.filter(c=>c.role==='user').length;
-  const done=Math.min(nextUserIdx/2+1,total);
-  $('counter').textContent=`${Math.ceil(done)}/${total}`;
-}
+function updC(){const t=CONV.filter(c=>c.role==='user').length;$('counter').textContent=`${Math.min(Math.ceil(nextUserIdx/2)+1,t)}/${t}`}
 
 // ================================================================
 // ICONS
@@ -260,137 +333,54 @@ const svgCam='<svg width="22" height="22" viewBox="0 0 24 24" fill="#444746"><pa
 const svgX='<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2l10 10M12 2L2 12" stroke="#70757a" stroke-width="1.8" stroke-linecap="round"/></svg>';
 const svgSend='<svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M3.4 20.4l17.45-7.48a1 1 0 000-1.84L3.4 3.6a1 1 0 00-1.4.92V9.5l13 2.5-13 2.5v4.98a1 1 0 001.4.92z"/></svg>';
 const svgSearch='<svg viewBox="0 0 24 24" fill="#70757a" width="20" height="20"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>';
+const svgLaptop='<svg width="36" height="36" viewBox="0 0 24 24" fill="#9aa0a6"><path d="M20 18c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2H0v2h24v-2h-4zM4 6h16v10H4V6z"/></svg>';
 
 // ================================================================
-// HEADER / TABS
+// HEADER / TABS / INPUT
 // ================================================================
-function rHeader(back){
-  $('header').innerHTML=`<div class="g-header"><div class="g-header-left">
-    ${back?'<div style="width:24px;height:24px;display:flex;align-items:center"><svg width="10" height="18" viewBox="0 0 10 18" fill="none"><path d="M9 1L1 9l8 8" stroke="#444746" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>':''}
-    <div><svg viewBox="0 0 24 24" width="30" height="30"><circle cx="12" cy="12" r="11" fill="#fff" stroke="#e0e0e0" stroke-width="1"/><path d="M6.5 12A5.5 5.5 0 0112 6.5v2A3.5 3.5 0 008.5 12h-2zm5.5 5.5A5.5 5.5 0 016.5 12h2a3.5 3.5 0 003.5 3.5v2zm0-11V4a8 8 0 018 8h-2.5A5.5 5.5 0 0012 6.5zm8 5.5a8 8 0 01-8 8v-2.5a5.5 5.5 0 005.5-5.5H20z" fill="url(#gg)"/><defs><linearGradient id="gg" x1="4" y1="4" x2="20" y2="20"><stop stop-color="#4285f4"/><stop offset=".33" stop-color="#9b72cb"/><stop offset=".66" stop-color="#d96570"/><stop offset="1" stop-color="#d96570"/></linearGradient></defs></svg></div>
-  </div><div class="avatar-circle">M</div></div>`;
-}
-function rTabs(s){$('navTabs').innerHTML=s?'<div class="nav-tabs"><div class="tab active">AI Mode</div><div class="tab">Everything</div><div class="tab">Images</div><div class="tab">Videos</div><div class="tab">News</div></div>':'';}
+function rHeader(back){$('header').innerHTML=`<div class="g-header"><div class="g-header-left">${back?'<div style="width:24px;height:24px;display:flex;align-items:center"><svg width="10" height="18" viewBox="0 0 10 18" fill="none"><path d="M9 1L1 9l8 8" stroke="#444746" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>':''}<div><svg viewBox="0 0 24 24" width="30" height="30"><circle cx="12" cy="12" r="11" fill="#fff" stroke="#e0e0e0" stroke-width="1"/><path d="M6.5 12A5.5 5.5 0 0112 6.5v2A3.5 3.5 0 008.5 12h-2zm5.5 5.5A5.5 5.5 0 016.5 12h2a3.5 3.5 0 003.5 3.5v2zm0-11V4a8 8 0 018 8h-2.5A5.5 5.5 0 0012 6.5zm8 5.5a8 8 0 01-8 8v-2.5a5.5 5.5 0 005.5-5.5H20z" fill="url(#gg)"/><defs><linearGradient id="gg" x1="4" y1="4" x2="20" y2="20"><stop stop-color="#4285f4"/><stop offset=".33" stop-color="#9b72cb"/><stop offset=".66" stop-color="#d96570"/><stop offset="1" stop-color="#d96570"/></linearGradient></defs></svg></div></div><div class="avatar-circle">M</div></div>`}
+function rTabs(s){$('navTabs').innerHTML=s?'<div class="nav-tabs"><div class="tab active">AI Mode</div><div class="tab">Everything</div><div class="tab">Images</div><div class="tab">Videos</div><div class="tab">News</div></div>':''}
+function inputBlank(){inputState='blank';$('inputBar').innerHTML=`<div class="input-bar"><div class="input-compose-box" onclick="startTyping()"><div class="input-compose-text" style="color:var(--text3)">Ask anything</div></div><div class="input-bottom-row"><button class="input-add-btn">${svgPlus}</button><div class="input-right-icons">${svgMic}${svgCam}<button class="send-btn disabled">${svgSend}</button></div></div></div>`}
+function inputDisabled(){inputState='disabled';$('inputBar').innerHTML=`<div class="input-bar"><div class="input-compose-box" style="opacity:.6"><div class="input-compose-text" style="color:var(--text3)">Ask anything</div></div><div class="input-bottom-row"><button class="input-add-btn">${svgPlus}</button><div class="input-right-icons">${svgMic}${svgCam}<button class="send-btn disabled">${svgSend}</button></div></div></div>`}
+function inputReady(txt){inputState='ready';$('inputBar').innerHTML=`<div class="input-bar"><div class="input-compose-box"><div class="input-compose-text">${txt}</div><button class="input-dismiss">${svgX}</button></div><div class="input-bottom-row"><button class="input-add-btn">${svgPlus}</button><div class="input-right-icons">${svgMic}${svgCam}<button class="send-btn" onclick="sendMsg()">${svgSend}</button></div></div></div>`}
+function inputHide(){$('inputBar').innerHTML=''}
 
-// ================================================================
-// INPUT BAR STATES
-// ================================================================
-function inputBlank(){
-  inputState='blank';
-  $('inputBar').innerHTML=`<div class="input-bar">
-    <div class="input-compose-box" onclick="startTyping()" style="cursor:pointer">
-      <div class="input-compose-text" style="color:var(--text3)">Ask anything</div>
-    </div>
-    <div class="input-bottom-row">
-      <button class="input-add-btn">${svgPlus}</button>
-      <div class="input-right-icons">${svgMic}${svgCam}<button class="send-btn disabled">${svgSend}</button></div>
-    </div>
-  </div>`;
-}
-
-function inputDisabled(){
-  inputState='disabled';
-  $('inputBar').innerHTML=`<div class="input-bar">
-    <div class="input-compose-box" style="opacity:.6">
-      <div class="input-compose-text" style="color:var(--text3)">Ask anything</div>
-    </div>
-    <div class="input-bottom-row">
-      <button class="input-add-btn">${svgPlus}</button>
-      <div class="input-right-icons">${svgMic}${svgCam}<button class="send-btn disabled">${svgSend}</button></div>
-    </div>
-  </div>`;
-}
-
-function inputReady(txt){
-  inputState='ready';
-  $('inputBar').innerHTML=`<div class="input-bar">
-    <div class="input-compose-box">
-      <div class="input-compose-text">${txt}</div>
-      <button class="input-dismiss">${svgX}</button>
-    </div>
-    <div class="input-bottom-row">
-      <button class="input-add-btn">${svgPlus}</button>
-      <div class="input-right-icons">${svgMic}${svgCam}<button class="send-btn" onclick="sendMsg()">${svgSend}</button></div>
-    </div>
-  </div>`;
-}
-
-// Simulate typing into the input box
 async function startTyping(){
-  if(busy || inputState==='typing' || inputState==='ready' || inputState==='disabled') return;
-  // Find the next user message
-  if(nextUserIdx>=CONV.length) return;
-  const u=CONV[nextUserIdx];
-  if(u.role!=='user') return;
-
+  if(busy||inputState!=='blank'||nextUserIdx>=CONV.length)return;
+  const u=CONV[nextUserIdx];if(u.role!=='user')return;
   inputState='typing';
-  const fullText=u.msg;
-  const plainText=strip(fullText);
-
-  // Build the input with typing cursor
-  $('inputBar').innerHTML=`<div class="input-bar">
-    <div class="input-compose-box">
-      <div class="input-compose-text" id="typingTarget"><span class="typing-cursor"></span></div>
-      <button class="input-dismiss">${svgX}</button>
-    </div>
-    <div class="input-bottom-row">
-      <button class="input-add-btn">${svgPlus}</button>
-      <div class="input-right-icons">${svgMic}${svgCam}<button class="send-btn disabled">${svgSend}</button></div>
-    </div>
-  </div>`;
-
-  const target=document.getElementById('typingTarget');
-  let ci=0;
-  const speed=18; // ms per char — feels like human typing
-
-  await new Promise(res=>{
-    typingTimer=setInterval(()=>{
-      ci=Math.min(ci+1+Math.floor(Math.random()*2),plainText.length); // slight randomness
-      target.innerHTML=plainText.slice(0,ci)+'<span class="typing-cursor"></span>';
-      if(ci>=plainText.length){
-        clearInterval(typingTimer);typingTimer=null;
-        res();
-      }
-    },speed);
-  });
-
-  // Typing done — show full text with send button active
-  inputReady(fullText);
+  const plain=strip(u.msg);
+  $('inputBar').innerHTML=`<div class="input-bar"><div class="input-compose-box"><div class="input-compose-text" id="typingTarget"><span class="typing-cursor"></span></div><button class="input-dismiss">${svgX}</button></div><div class="input-bottom-row"><button class="input-add-btn">${svgPlus}</button><div class="input-right-icons">${svgMic}${svgCam}<button class="send-btn disabled">${svgSend}</button></div></div></div>`;
+  const tgt=document.getElementById('typingTarget');let ci=0;
+  await new Promise(r=>{typingTimer=setInterval(()=>{ci=Math.min(ci+1+Math.floor(Math.random()*2),plain.length);tgt.innerHTML=plain.slice(0,ci)+'<span class="typing-cursor"></span>';if(ci>=plain.length){clearInterval(typingTimer);typingTimer=null;r()}},18)});
+  inputReady(u.msg);
 }
 
 // ================================================================
 // BUILD BLOCKS
 // ================================================================
-function bCard(b){return`<div class="pcard"><div class="pthumb"><svg width="36" height="36" viewBox="0 0 24 24" fill="#9aa0a6"><path d="M20 18c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2H0v2h24v-2h-4zM4 6h16v10H4V6z"/></svg></div><div class="pinfo"><div class="pname">${b.name}</div><div class="pprice">${b.price}</div><div class="pmeta">★ ${b.brand} ${b.rating} (${b.reviews})</div></div></div>`}
+function bCard(b){return`<div class="pcard"><div class="pthumb">${svgLaptop}</div><div class="pinfo"><div class="pname">${b.name}</div><div class="pprice">${b.price}</div><div class="pmeta">★ ${b.brand} ${b.rating} (${b.reviews})</div></div></div>`}
 function bTable(b){let h='<div class="ctable"><table><thead><tr>';b.headers.forEach(th=>h+=`<th>${th}</th>`);h+='</tr></thead><tbody>';b.rows.forEach(r=>{h+='<tr>';r.forEach(c=>h+=`<td>${c}</td>`);h+='</tr>'});return h+'</tbody></table></div>'}
-function bBlock(b){switch(b.t){case'h':return`<div class="heading">${b.text}</div>`;case'sh':return`<div class="subheading">${b.text}</div>`;case'p':return`<div class="para">${b.text}</div>`;case'li':return`<div class="bullet">• ${b.text}</div>`;case'num':return`<div class="numbered">1. ${b.text}</div>`;case'num2':return`<div class="numbered">2. ${b.text}</div>`;case'card':return bCard(b);case'table':return bTable(b);default:return''}}
+function bBlock(b){if(b.t==='commerce')return'';switch(b.t){case'h':return`<div class="heading">${b.text}</div>`;case'sh':return`<div class="subheading">${b.text}</div>`;case'p':return`<div class="para">${b.text}</div>`;case'li':return`<div class="bullet">• ${b.text}</div>`;case'num':return`<div class="numbered">1. ${b.text}</div>`;case'num2':return`<div class="numbered">2. ${b.text}</div>`;case'card':return bCard(b);case'table':return bTable(b);default:return''}}
 function bAll(bl){return bl.map(bBlock).join('')}
 
 // ================================================================
 // RENDER
 // ================================================================
-function rWelcome(){
-  $('scrollArea').innerHTML=`<div class="welcome"><div class="welcome-spacer"></div>
-    <h1>Hi Macie. What do you<br>have in mind?</h1>
-    <div class="welcome-bottom"><div class="suggestions">
-      <div class="suggestion-item"><span class="stxt">Tell me what types of plastics exist and if they can be recycled.</span>${svgSearch}</div>
-      <div class="suggestion-item"><span class="stxt">Free local events this week</span>${svgSearch}</div>
-      <div class="suggestion-item"><span class="stxt">Make a table comparing the different methods of making coffee</span>${svgSearch}</div>
-    </div></div></div>`;
-}
+function rWelcome(){$('scrollArea').innerHTML=`<div class="welcome"><div class="welcome-spacer"></div><h1>Hi Macie. What do you<br>have in mind?</h1><div class="welcome-bottom"><div class="suggestions"><div class="suggestion-item"><span class="stxt">Tell me what types of plastics exist and if they can be recycled.</span>${svgSearch}</div><div class="suggestion-item"><span class="stxt">Free local events this week</span>${svgSearch}</div><div class="suggestion-item"><span class="stxt">Make a table comparing the different methods of making coffee</span>${svgSearch}</div></div></div></div>`}
 function rMsgs(){let h='<div class="messages">';hist.forEach(m=>h+=m.html);h+='</div>';$('scrollArea').innerHTML=h;sBot()}
 
 // ================================================================
-// TYPEWRITER FOR AI
+// TYPEWRITER
 // ================================================================
 async function typeAI(blocks){
-  busy=true;
-  const idx=hist.length;
-  hist.push({type:'ai',html:'<div class="ai-block" id="aiLive"></div>'});
-  rMsgs();
+  busy=true;const idx=hist.length;
+  hist.push({type:'ai',html:'<div class="ai-block" id="aiLive"></div>'});rMsgs();
   const c=document.getElementById('aiLive');if(!c){busy=false;return}
+  let hasCommerce=false;
   for(let i=0;i<blocks.length;i++){
     const b=blocks[i];
+    if(b.t==='commerce'){hasCommerce=true;continue}
     const isT=['h','sh','p','li','num','num2'].includes(b.t);
     if(!isT){c.insertAdjacentHTML('beforeend',bBlock(b));sBot();await sleep(250);continue}
     const el=document.createElement('div');
@@ -398,96 +388,214 @@ async function typeAI(blocks){
     c.appendChild(el);
     const pre=b.t==='li'?'• ':b.t==='num'?'1. ':b.t==='num2'?'2. ':'';
     const plain=strip(b.text);let ci=0;
-    await new Promise(res=>{
-      timer=setInterval(()=>{
-        ci=Math.min(ci+4,plain.length);
-        el.innerHTML=pre+plain.slice(0,ci)+'<span class="cursor"></span>';
-        sBot();
-        if(ci>=plain.length){clearInterval(timer);timer=null;el.innerHTML=pre+b.text;res()}
-      },8);
-    });
+    await new Promise(res=>{timer=setInterval(()=>{ci=Math.min(ci+4,plain.length);el.innerHTML=pre+plain.slice(0,ci)+'<span class="cursor"></span>';sBot();if(ci>=plain.length){clearInterval(timer);timer=null;el.innerHTML=pre+b.text;res()}},8)});
     await sleep(30);
   }
   hist[idx].html=`<div class="ai-block">${bAll(blocks)}</div>`;
   busy=false;
-  // Clear input — user must click to start typing next prompt
-  if(nextUserIdx<CONV.length) inputBlank();
-  else inputDisabled();
-}
-
-// ================================================================
-// MAIN FLOW
-// ================================================================
-async function sendMsg(){
-  if(busy||inputState!=='ready') return;
-  if(nextUserIdx>=CONV.length) return;
-  const u=CONV[nextUserIdx];
-  if(u.role!=='user') return;
-
-  // Show conversation area
-  rHeader(true);rTabs(false);
-
-  // Add user message
-  hist.push({type:'user',html:`<div class="user-row"><div class="user-msg">${u.msg}</div></div>`});
-  inputDisabled();rMsgs();
-
-  // Find AI response
-  const aiIdx=nextUserIdx+1;
-  if(aiIdx<CONV.length&&CONV[aiIdx].role==='ai'){
-    nextUserIdx=aiIdx+1; // advance past both user + ai
-    updC();
-    await sleep(600);
-    // THINKING phase
-    hist.push({type:'thinking',html:'<div class="thinking-row"><div class="thinking-dot"></div><div class="thinking-dot"></div><div class="thinking-dot"></div><span class="thinking-label" id="thinkLbl">Thinking</span></div>'});
-    rMsgs();
-    let d=0;dotTimer=setInterval(()=>{d=(d+1)%4;const e=document.getElementById('thinkLbl');if(e)e.textContent='Thinking'+'.'.repeat(d)},400);
-    await sleep(2500);
-    clearInterval(dotTimer);hist.pop();rMsgs();
-    // AI RESPONSE
-    await typeAI(CONV[aiIdx].blocks);
+  if(hasCommerce){
+    // Show commerce flow — no more chat input
+    inputHide();
+    await sleep(800);
+    showProductDetail();
+  } else if(nextUserIdx<CONV.length){
+    inputBlank();
   } else {
-    nextUserIdx+=1;
-    updC();
+    inputDisabled();
   }
 }
 
-function initWelcome(){
-  nextUserIdx=0;rHeader(false);rTabs(true);rWelcome();inputBlank();updC();
+// ================================================================
+// CHAT FLOW
+// ================================================================
+async function sendMsg(){
+  if(busy||inputState!=='ready'||nextUserIdx>=CONV.length)return;
+  const u=CONV[nextUserIdx];if(u.role!=='user')return;
+  rHeader(true);rTabs(false);
+  hist.push({type:'user',html:`<div class="user-row"><div class="user-msg">${u.msg}</div></div>`});
+  inputDisabled();rMsgs();
+  const aiIdx=nextUserIdx+1;
+  if(aiIdx<CONV.length&&CONV[aiIdx].role==='ai'){
+    nextUserIdx=aiIdx+1;updC();
+    await sleep(600);
+    hist.push({type:'thinking',html:'<div class="thinking-row"><div class="thinking-dot"></div><div class="thinking-dot"></div><div class="thinking-dot"></div><span class="thinking-label" id="thinkLbl">Thinking</span></div>'});
+    rMsgs();let d=0;dotTimer=setInterval(()=>{d=(d+1)%4;const e=document.getElementById('thinkLbl');if(e)e.textContent='Thinking'+'.'.repeat(d)},400);
+    await sleep(2500);clearInterval(dotTimer);hist.pop();rMsgs();
+    await typeAI(CONV[aiIdx].blocks);
+  }else{nextUserIdx+=1;updC()}
 }
 
-function resetDemo(){
-  clearInterval(timer);clearInterval(dotTimer);clearInterval(typingTimer);
-  autoP=false;busy=false;hist.length=0;nextUserIdx=0;inputState='blank';
-  $('autoBtn').textContent='▶ Auto Play';$('autoBtn').classList.remove('primary');
-  initWelcome();
+// ================================================================
+// COMMERCE SCREENS (click-only, no autoplay)
+// ================================================================
+const variants={
+  zbook:{name:"HP ZBook 8 G1i 16\" Mobile Workstation\nIntel Core Ultra 7",price:1499,rating:"4.5",tax:6.99,sub:""},
+  bundle280:{name:"HP ZBook 8 G1i 16\" Mobile Workstation\nIntel Core Ultra 7 + Dock Station 280W",price:1699,rating:"4.0",tax:6.99,sub:"Includes bundle of $200"},
+  bundle100:{name:"HP ZBook 8 G1i 16\" Mobile Workstation\nIntel Core Ultra 7 + Dock Station 100W",price:1599,rating:"4.2",tax:6.99,sub:"Includes bundle of $100"}
+};
+
+function getVariant(){return variants[selectedVariant]}
+function fmtPrice(n){return'$'+n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',')}
+
+function showProductDetail(){
+  commercePhase='product';
+  const v=getVariant();
+  const total=v.price+v.tax;
+  const ov=document.createElement('div');ov.className='overlay';ov.id='commerceOverlay';
+  ov.innerHTML=`
+    <div class="ov-status"><span>9:41</span><div class="status-icons"><svg width="17" height="12" viewBox="0 0 17 12" fill="#1f1f1f"><rect x="0" y="8" width="3" height="4" rx=".5"/><rect x="4.5" y="5" width="3" height="7" rx=".5"/><rect x="9" y="2" width="3" height="10" rx=".5"/><rect x="13.5" y="0" width="3" height="12" rx=".5"/></svg><svg width="16" height="12" viewBox="0 0 16 12" fill="#1f1f1f"><path d="M8 3.6C9.8 3.6 11.4 4.3 12.6 5.4L14 4C12.4 2.5 10.3 1.5 8 1.5S3.6 2.5 2 4L3.4 5.4C4.6 4.3 6.2 3.6 8 3.6ZM8 7.2C9 7.2 9.9 7.6 10.6 8.2L12 6.8C10.9 5.8 9.5 5.1 8 5.1S5.1 5.8 4 6.8L5.4 8.2C6.1 7.6 7 7.2 8 7.2Z"/><circle cx="8" cy="10.5" r="1.5"/></svg><svg width="27" height="13" viewBox="0 0 27 13" fill="none"><rect x=".5" y="1" width="23" height="11" rx="2.5" stroke="#1f1f1f" stroke-width="1"/><path d="M25 4.5v4a1.5 1.5 0 000-4z" fill="#1f1f1f"/><rect x="2" y="2.5" width="19" height="8" rx="1.5" fill="#1f1f1f"/></svg></div></div>
+    <div style="flex:1;overflow-y:auto;overflow-x:hidden" id="pdScroll">
+      <div class="pd-gallery">
+        <div class="pd-img"><div style="width:200px;height:140px;background:linear-gradient(135deg,#c8b0e8,#7090d0);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:48px">💻</div>
+          <div class="pd-actions"><button><svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg></button><button><svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><circle cx="12" cy="6" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="18" r="2"/></svg></button><button onclick="removeOverlay()"><svg width="14" height="14" viewBox="0 0 14 14" fill="#fff"><path d="M2 2l10 10M12 2L2 12" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg></button></div>
+        </div>
+        <div class="pd-img-peek"><div style="font-size:36px">💻</div></div>
+      </div>
+      <div class="pd-title" id="pdTitle">${v.name.replace('\n','<br>')}</div>
+      <div class="pd-rating"><span class="pd-stars">★★★★☆</span> ${v.rating}</div>
+      <div class="pd-variants">
+        <div class="pd-variant ${selectedVariant==='zbook'?'active':''}" onclick="selectVariant('zbook')"><div class="vthumb" style="background:#d8d8e8"></div></div>
+        <div class="pd-variant ${selectedVariant==='bundle280'?'active':''}" onclick="selectVariant('bundle280')"><div class="vthumb" style="background:#d0d0d8"></div><span>Zbook +<br>Dock 280W</span></div>
+        <div class="pd-variant ${selectedVariant==='bundle100'?'active':''}" onclick="selectVariant('bundle100')"><div class="vthumb" style="background:#d0d0d8"></div><span>Zbook +<br>Dock 100W</span></div>
+      </div>
+      <div class="pd-divider"></div>
+      <div class="pd-seller"><div class="pd-hp-logo"><svg width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" stroke="#ccc" fill="none" stroke-width="1"/><text x="12" y="16" text-anchor="middle" font-size="10" font-weight="700" fill="#0096d6">hp</text></svg></div><div style="text-align:right"><div class="pd-price">${fmtPrice(v.price)}</div>${v.sub?`<div class="pd-price-sub">${v.sub}</div>`:''}</div></div>
+      <div class="pd-row"><span class="label">Delivery</span><span>Free</span></div>
+      <div class="pd-row"><span class="label">Estimated TAX</span><span>${v.tax.toFixed(2)}</span></div>
+      <div class="pd-total"><span>Your total</span><span>${fmtPrice(total)}</span></div>
+      <div class="pd-buttons"><button class="btn-buy" onclick="showCheckout()">Buy</button><button class="btn-visit">Visit site</button></div>
+    </div>
+    <div class="home-ind"><div></div></div>`;
+  document.getElementById('phone').appendChild(ov);
 }
 
-function toggleAutoPlay(){
-  autoP=!autoP;
-  $('autoBtn').textContent=autoP?'⏸ Pause':'▶ Auto Play';
-  $('autoBtn').classList.toggle('primary',autoP);
-  if(autoP&&!busy) runAutoPlay();
+function selectVariant(v){selectedVariant=v;removeOverlay();showProductDetail()}
+function removeOverlay(){const o=document.getElementById('commerceOverlay');if(o)o.remove()}
+
+function showCheckout(){
+  removeOverlay();commercePhase='checkout';
+  const v=getVariant();const total=v.price+v.tax;
+  const ov=document.createElement('div');ov.className='overlay';ov.id='commerceOverlay';
+  ov.innerHTML=`
+    <div class="ov-status"><span>9:41</span><div class="status-icons"><svg width="17" height="12" viewBox="0 0 17 12" fill="#1f1f1f"><rect x="0" y="8" width="3" height="4" rx=".5"/><rect x="4.5" y="5" width="3" height="7" rx=".5"/><rect x="9" y="2" width="3" height="10" rx=".5"/><rect x="13.5" y="0" width="3" height="12" rx=".5"/></svg><svg width="16" height="12" viewBox="0 0 16 12" fill="#1f1f1f"><path d="M8 3.6C9.8 3.6 11.4 4.3 12.6 5.4L14 4C12.4 2.5 10.3 1.5 8 1.5S3.6 2.5 2 4L3.4 5.4C4.6 4.3 6.2 3.6 8 3.6Z"/><circle cx="8" cy="10.5" r="1.5"/></svg><svg width="27" height="13" viewBox="0 0 27 13" fill="none"><rect x=".5" y="1" width="23" height="11" rx="2.5" stroke="#1f1f1f" stroke-width="1"/><rect x="2" y="2.5" width="19" height="8" rx="1.5" fill="#1f1f1f"/></svg></div></div>
+    <div style="flex:1;overflow-y:auto;padding-top:8px">
+      <div class="co-header"><div class="co-logo"><svg width="36" height="36" viewBox="0 0 36 36"><circle cx="18" cy="18" r="17" stroke="#ccc" fill="none" stroke-width="1"/><text x="18" y="22" text-anchor="middle" font-size="13" font-weight="700" fill="#0096d6">hp</text></svg></div><button class="co-close" onclick="removeOverlay()">${svgX}</button></div>
+      <div class="co-title">Review your order</div>
+      <div class="co-item"><div class="co-item-img"><div style="font-size:28px">💻</div></div><div class="co-item-info"><div class="co-item-name">HP ZBook 8 G1i 16" Mobile Workstation Intel Core Ultra 7</div><div class="co-item-price">$1,499.00</div><div class="co-item-return">Return policy: 30 days return</div></div></div>
+      ${selectedVariant!=='zbook'?`<div class="co-item"><div class="co-item-img"><div style="font-size:24px">🔌</div></div><div class="co-item-info"><div class="co-item-name">Dock Station ${selectedVariant==='bundle280'?'280W':'100W'}</div><div class="co-item-price">${selectedVariant==='bundle280'?'200.00':'100.00'}</div><div class="co-item-return">Return policy: 30 days return</div></div></div>`:''}
+      <div class="co-section"><div class="co-section-left"><div class="co-section-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="#70757a"><rect x="2" y="5" width="20" height="14" rx="2" stroke="#70757a" fill="none" stroke-width="1.5"/><path d="M2 10h20" stroke="#70757a" stroke-width="1.5"/></svg></div><div><div class="co-section-label">VISA</div><div class="co-section-sub">· · · · 9548</div></div></div><div class="co-chevron"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M4 2l4 4-4 4" stroke="#70757a" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div></div>
+      <div class="co-section"><div class="co-section-left"><div class="co-section-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z" stroke="#70757a" stroke-width="1.5"/></svg></div><div><div class="co-section-label">Address</div><div class="co-section-sub">3881 Longview Avenue</div></div></div><div class="co-chevron"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M4 2l4 4-4 4" stroke="#70757a" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div></div>
+      <div class="co-section" onclick="toggleShipping()" id="shippingSection"><div class="co-section-left"><div class="co-section-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9l1.96 2.5H17V9.5h2.5zm-1.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z" stroke="#70757a" stroke-width="1.2"/></svg></div><div><div class="co-section-label">Free Shipping</div><div class="co-section-sub">Delivery info</div></div></div><div class="co-chevron"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M4 2l4 4-4 4" stroke="#70757a" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div></div>
+      <div id="shippingOpts" style="display:none"><div class="co-ship-opts">
+        <div class="co-ship-opt"><div class="radio active"></div><div>Standard <span style="color:var(--text3);font-size:12px">Fri, February 17</span></div><span class="ship-price">Free</span></div>
+        <div class="co-ship-opt"><div class="radio"></div><div>Premium <span style="color:var(--text3);font-size:12px">Wed, February 15</span></div><span class="ship-price">$12.99</span></div>
+      </div></div>
+      <div class="co-total"><span class="t-label">Your total</span><span class="t-amount">${fmtPrice(total)}</span></div>
+      <button class="co-pay-btn" onclick="showConfirmation()"><svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg> Pay with <b>G</b> Pay</button>
+      <div class="co-disclaimer">By continuing, you're placing an order with HP (or a marketplace seller) and agree to their terms and return policy.</div>
+    </div>
+    <div class="home-ind"><div></div></div>`;
+  document.getElementById('phone').appendChild(ov);
 }
 
+function toggleShipping(){const o=document.getElementById('shippingOpts');if(o)o.style.display=o.style.display==='none'?'block':'none'}
+
+function showConfirmation(){
+  removeOverlay();commercePhase='confirm';
+  const v=getVariant();const total=v.price+v.tax;
+  const ov=document.createElement('div');ov.className='overlay';ov.id='commerceOverlay';
+  ov.innerHTML=`
+    <div class="ov-status"><span>9:41</span><div class="status-icons"><svg width="17" height="12" viewBox="0 0 17 12" fill="#1f1f1f"><rect x="0" y="8" width="3" height="4" rx=".5"/><rect x="4.5" y="5" width="3" height="7" rx=".5"/><rect x="9" y="2" width="3" height="10" rx=".5"/><rect x="13.5" y="0" width="3" height="12" rx=".5"/></svg><svg width="16" height="12" viewBox="0 0 16 12" fill="#1f1f1f"><path d="M8 3.6C9.8 3.6 11.4 4.3 12.6 5.4L14 4C12.4 2.5 10.3 1.5 8 1.5S3.6 2.5 2 4L3.4 5.4C4.6 4.3 6.2 3.6 8 3.6Z"/><circle cx="8" cy="10.5" r="1.5"/></svg><svg width="27" height="13" viewBox="0 0 27 13" fill="none"><rect x=".5" y="1" width="23" height="11" rx="2.5" stroke="#1f1f1f" stroke-width="1"/><rect x="2" y="2.5" width="19" height="8" rx="1.5" fill="#1f1f1f"/></svg></div></div>
+    <div style="flex:1;overflow-y:auto">
+      <div class="oc-header"><div class="oc-logo"><svg width="32" height="32" viewBox="0 0 36 36"><circle cx="18" cy="18" r="17" stroke="#ccc" fill="none" stroke-width="1"/><text x="18" y="22" text-anchor="middle" font-size="13" font-weight="700" fill="#0096d6">hp</text></svg></div><div class="oc-title">Order Complete <div class="oc-check"><svg width="12" height="12" viewBox="0 0 12 12" fill="#fff"><path d="M2 6l3 3 5-5" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/></svg></div></div></div>
+      <div class="oc-order-id">Order ID number: 10501020676979</div>
+      <div class="oc-thanks">Thank you. Your order has been confirmed.</div>
+      <div class="oc-section-title">Order Summary</div>
+      <div class="oc-card">
+        <div class="co-item" style="padding:8px 0"><div class="co-item-img" style="width:48px;height:48px"><div style="font-size:24px">💻</div></div><div class="co-item-info"><div class="co-item-name" style="font-size:13px">HP ZBook 8 G1i 16" Mobile Workstation Intel Core Ultra 7</div><div class="co-item-price" style="font-size:13px">$1,499.00</div><div class="co-item-return">Return policy: 30 days return</div></div></div>
+        ${selectedVariant!=='zbook'?`<div class="co-item" style="padding:8px 0"><div class="co-item-img" style="width:48px;height:48px"><div style="font-size:20px">🔌</div></div><div class="co-item-info"><div class="co-item-name" style="font-size:13px">Dock Station ${selectedVariant==='bundle280'?'280W':'100W'}</div><div class="co-item-price" style="font-size:13px">${selectedVariant==='bundle280'?'200.00':'100.00'}</div><div class="co-item-return">Return policy: 30 days return</div></div></div>`:''}
+        <div style="border-top:1px solid var(--border);margin-top:8px;padding-top:8px">
+          <div class="oc-summary-row"><span>Subtotal</span><span>${fmtPrice(v.price)}</span></div>
+          <div class="oc-summary-row"><span>Delivery</span><span>Free</span></div>
+          <div class="oc-summary-row"><span>TAX</span><span>${v.tax.toFixed(2)}</span></div>
+          <div class="oc-summary-total"><span>Your total</span><span>${fmtPrice(total)}</span></div>
+          <div class="oc-summary-row"><span>Payment method</span><span>VISA · · 9548 Google Pay</span></div>
+        </div>
+      </div>
+      <div class="oc-section-title">Delivery information</div>
+      <div class="oc-delivery">
+        <div class="oc-delivery-row"><div class="oc-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="#70757a"><rect x="3" y="4" width="18" height="18" rx="2" stroke="#70757a" fill="none" stroke-width="1.5"/><path d="M16 2v4M8 2v4M3 10h18" stroke="#70757a" stroke-width="1.5"/></svg></div><div>Arrives by February 14, 2026</div></div>
+        <div class="oc-delivery-row"><div class="oc-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" stroke="#70757a" stroke-width="1.5"/><circle cx="12" cy="9" r="2" stroke="#70757a" stroke-width="1.5"/></svg></div><div>Macie Park<br>3881 Longview Avenue</div></div>
+      </div>
+      <div class="oc-section-title">Order updates</div>
+      <button class="oc-track-btn" onclick="showTracking()">Track order status</button>
+    </div>
+    <div class="home-ind"><div></div></div>`;
+  document.getElementById('phone').appendChild(ov);
+}
+
+function showTracking(){
+  removeOverlay();commercePhase='tracking';
+  const v=getVariant();const total=v.price+v.tax;
+  const ov=document.createElement('div');ov.className='overlay';ov.id='commerceOverlay';
+  ov.innerHTML=`
+    <div class="ov-status"><span>9:41</span><div class="status-icons"><svg width="17" height="12" viewBox="0 0 17 12" fill="#1f1f1f"><rect x="0" y="8" width="3" height="4" rx=".5"/><rect x="4.5" y="5" width="3" height="7" rx=".5"/><rect x="9" y="2" width="3" height="10" rx=".5"/><rect x="13.5" y="0" width="3" height="12" rx=".5"/></svg><svg width="16" height="12" viewBox="0 0 16 12" fill="#1f1f1f"><path d="M8 3.6C9.8 3.6 11.4 4.3 12.6 5.4L14 4C12.4 2.5 10.3 1.5 8 1.5S3.6 2.5 2 4L3.4 5.4C4.6 4.3 6.2 3.6 8 3.6Z"/><circle cx="8" cy="10.5" r="1.5"/></svg><svg width="27" height="13" viewBox="0 0 27 13" fill="none"><rect x=".5" y="1" width="23" height="11" rx="2.5" stroke="#1f1f1f" stroke-width="1"/><rect x="2" y="2.5" width="19" height="8" rx="1.5" fill="#1f1f1f"/></svg></div></div>
+    <div style="flex:1;overflow-y:auto">
+      <div class="tk-header"><div><svg width="32" height="32" viewBox="0 0 36 36"><circle cx="18" cy="18" r="17" stroke="#ccc" fill="none" stroke-width="1"/><text x="18" y="22" text-anchor="middle" font-size="13" font-weight="700" fill="#0096d6">hp</text></svg></div><div class="tk-order-id">Order ID number: 10501020676979</div></div>
+      <div class="tk-timeline">
+        <div class="tk-line"><div class="tk-line-fill"></div></div>
+        <div class="tk-step"><div class="tk-dot done"></div><div class="tk-label">Ordered</div><div class="tk-date">2/11/26</div></div>
+        <div class="tk-step"><div class="tk-dot current"></div><div class="tk-label">Shipped</div><div class="tk-date">2/12/26</div></div>
+        <div class="tk-step"><div class="tk-dot"></div><div class="tk-label">Delivery</div><div class="tk-date">2/14/26 6:30pm</div></div>
+      </div>
+      <div class="tk-shipping">
+        <div class="tk-shipping-title"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4z" stroke="#444" stroke-width="1.5"/></svg> FEDEX</div>
+        <div class="tk-shipping-addr">Ships to: 3881 Longview Avenue</div>
+        <div class="tk-buttons"><button class="tk-btn-primary">Track package</button><button class="tk-btn-secondary">Change delivery</button></div>
+      </div>
+      <div class="oc-card" style="margin-top:16px">
+        <div class="co-item" style="padding:8px 0"><div class="co-item-img" style="width:48px;height:48px"><div style="font-size:24px">💻</div></div><div class="co-item-info"><div class="co-item-name" style="font-size:13px">HP ZBook 8 G1i 16" Mobile Workstation Intel Core Ultra 7</div><div class="co-item-price" style="font-size:13px">$1,499.00</div><div class="co-item-return">Return policy: 30 days return</div></div></div>
+        ${selectedVariant!=='zbook'?`<div class="co-item" style="padding:8px 0"><div class="co-item-img" style="width:48px;height:48px"><div style="font-size:20px">🔌</div></div><div class="co-item-info"><div class="co-item-name" style="font-size:13px">Dock Station ${selectedVariant==='bundle280'?'280W':'100W'}</div><div class="co-item-price" style="font-size:13px">${selectedVariant==='bundle280'?'200.00':'100.00'}</div><div class="co-item-return">Return policy: 30 days return</div></div></div>`:''}
+        <div style="border-top:1px solid var(--border);margin-top:8px;padding-top:8px">
+          <div class="oc-summary-row"><span>Subtotal</span><span>${fmtPrice(v.price)}</span></div>
+          <div class="oc-summary-row"><span>Delivery</span><span>Free</span></div>
+          <div class="oc-summary-row"><span>TAX</span><span>${v.tax.toFixed(2)}</span></div>
+          <div class="oc-summary-total"><span>Your total</span><span>${fmtPrice(total)}</span></div>
+          <div class="oc-summary-row"><span>Payment method</span><span>VISA · · 9548 Google Pay</span></div>
+        </div>
+      </div>
+      <div class="tk-sign-in"><h3>Sign in to View Your Order Details</h3><p>To access the full details of your order, including tracking information, items purchased, and delivery updates, please sign in to your account.</p><button>Sign In / Create an account</button></div>
+    </div>
+    <div class="home-ind"><div></div></div>`;
+  document.getElementById('phone').appendChild(ov);
+}
+
+// ================================================================
+// AUTOPLAY (conversation only — stops before commerce)
+// ================================================================
 async function runAutoPlay(){
-  if(!autoP||busy) return;
+  if(!autoP||busy)return;
   if(nextUserIdx>=CONV.length){autoP=false;$('autoBtn').textContent='▶ Auto Play';$('autoBtn').classList.remove('primary');return}
-  // Simulate click on input area
-  await sleep(800);
-  if(!autoP) return;
-  await startTyping();
-  if(!autoP) return;
-  await sleep(600);
-  if(!autoP) return;
+  // Check if next AI has commerce trigger — stop autoplay
+  const aiCheck=nextUserIdx+1;
+  if(aiCheck<CONV.length&&CONV[aiCheck].role==='ai'&&CONV[aiCheck].blocks.some(b=>b.t==='commerce')){
+    // Let it play this last turn then stop
+  }
+  await sleep(800);if(!autoP)return;
+  await startTyping();if(!autoP)return;
+  await sleep(600);if(!autoP)return;
   await sendMsg();
-  // Wait for completion
   const wait=()=>new Promise(r=>{const iv=setInterval(()=>{if(!busy){clearInterval(iv);r()}},200)});
   await wait();
+  if(commercePhase!=='none'){autoP=false;$('autoBtn').textContent='▶ Auto Play';$('autoBtn').classList.remove('primary');return}
   await sleep(1500);
-  if(autoP) runAutoPlay();
+  if(autoP)runAutoPlay();
 }
+function toggleAutoPlay(){autoP=!autoP;$('autoBtn').textContent=autoP?'⏸ Pause':'▶ Auto Play';$('autoBtn').classList.toggle('primary',autoP);if(autoP&&!busy)runAutoPlay()}
 
-// INIT
+function initWelcome(){nextUserIdx=0;rHeader(false);rTabs(true);rWelcome();inputBlank();updC();commercePhase='none';selectedVariant='zbook'}
+function resetDemo(){clearInterval(timer);clearInterval(dotTimer);clearInterval(typingTimer);autoP=false;busy=false;hist.length=0;removeOverlay();initWelcome();$('autoBtn').textContent='▶ Auto Play';$('autoBtn').classList.remove('primary')}
+
 initWelcome();
 </script>
 </body>

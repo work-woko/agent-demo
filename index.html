@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini eCommerce Demo</title>
+    <style>
+        :root {
+            --bg-color: #f8f9fa;
+            --user-msg-bg: #e9ecef;
+            --gemini-blue: #4285f4;
+            --text-color: #202124;
+        }
+        body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: var(--bg-color); color: var(--text-color); margin: 0; display: flex; justify-content: center; }
+        #phone-container { width: 375px; height: 812px; background: white; border: 12px solid #333; border-radius: 40px; position: relative; overflow: hidden; margin-top: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.2); }
+        #header { padding: 40px 20px 10px; text-align: center; border-bottom: 1px solid #eee; }
+        #chat-area { height: 600px; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 20px; scroll-behavior: smooth; }
+        .message { max-width: 85%; padding: 12px 16px; border-radius: 18px; line-height: 1.5; font-size: 14px; }
+        .user { align-self: flex-end; background: var(--user-msg-bg); border-bottom-right-radius: 4px; }
+        .gemini { align-self: flex-start; background: white; border: 1px solid #eee; border-bottom-left-radius: 4px; position: relative; }
+        .thinking { font-style: italic; color: #70757a; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
+        #input-area { position: absolute; bottom: 0; width: 100%; padding: 20px; box-sizing: border-box; background: white; border-top: 1px solid #eee; }
+        .input-bar { background: #f1f3f4; padding: 12px 20px; border-radius: 25px; color: #70757a; font-size: 14px; display: flex; justify-content: space-between; cursor: pointer; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
+        th, td { border: 1px solid #ddd; padding: 6px; text-align: left; }
+        th { background: #f8f9fa; }
+    </style>
+</head>
+<body>
+
+<div id="phone-container">
+    <div id="header">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/8/8a/Google_Gemini_logo.svg" width="80" alt="Gemini">
+    </div>
+    <div id="chat-area">
+        </div>
+    <div id="input-area">
+        <div class="input-bar" onclick="nextStep()">
+            <span>Tap to progress demo...</span>
+            <span>➤</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    const script = [
+        { type: 'user', text: "I'm scaling up my architecture practice—working solo but taking on bigger projects. I need a laptop that handles 3D rendering and BIM software, lasts through full-day client meetings without needing a charger, and won't break the bank. What should I get?" },
+        { type: 'gemini', text: "To handle architectural scaling, you need a machine that balances single-core clock speed for BIM modeling with multi-core/GPU power for 3D rendering. [cite: 4] Here are the top options:", isTable: true },
+        { type: 'user', text: "i really like the HP option as i dont want to compromise on the performance element, also i have some 4k HD True colour monitors from HP, and im impressed." },
+        { type: 'gemini', text: "The HP ZBook series is the gold standard for architectural workstations. [cite: 30] For all-day battery, look at the G11 (2025/2026) models using Intel Core Ultra or AMD Ryzen Pro. [cite: 31, 32]" }
+    ];
+
+    let currentStep = 0;
+    const chatArea = document.getElementById('chat-area');
+
+    function nextStep() {
+        if (currentStep >= script.length) return;
+        
+        const item = script[currentStep];
+        addMessage(item);
+        currentStep++;
+    }
+
+    function addMessage(item) {
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `message ${item.type}`;
+        chatArea.appendChild(msgDiv);
+
+        if (item.type === 'user') {
+            msgDiv.innerText = item.text;
+            chatArea.scrollTop = chatArea.scrollHeight;
+        } else {
+            // "Thinking" state
+            msgDiv.innerHTML = '<span class="thinking">Gemini is thinking...</span>';
+            setTimeout(() => {
+                msgDiv.innerHTML = '';
+                typeWriter(item.text, msgDiv, 0, () => {
+                    if (item.isTable) addDemoTable(msgDiv);
+                });
+            }, 1500);
+        }
+    }
+
+    function typeWriter(text, element, i, callback) {
+        if (i < text.length) {
+            element.innerHTML += text.charAt(i);
+            chatArea.scrollTop = chatArea.scrollHeight;
+            setTimeout(() => typeWriter(text, element, i + 1, callback), 20);
+        } else if (callback) {
+            callback();
+        }
+    }
+
+    function addDemoTable(container) {
+        const tableHtml = `
+            <table>
+                <tr><th>Model</th><th>Best For</th><th>Price</th></tr>
+                <tr><td>HP ZBook 8 G1i</td><td>BIM Power [cite: 20]</td><td>$1,499 </td></tr>
+                <tr><td>Dell Pro 16+</td><td>Stationary [cite: 26]</td><td>$1,449 [cite: 10]</td></tr>
+            </table>`;
+        container.innerHTML += tableHtml;
+        chatArea.scrollTop = chatArea.scrollHeight;
+    }
+</script>
+
+</body>
+</html>
